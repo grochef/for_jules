@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Macro Tracker v3.95 - Persistence Plus</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --input-bg: #0f172a;
+            --text-main: #f1f5f9;
+            --indigo: #6366f1;
+            --indigo-dark: #4f46e5;
+            --rose: #fb7185;
+            --amber: #fbbf24;
+            --emerald: #34d399;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: calc(20px + env(safe-area-inset-top)) 16px 16px 16px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 448px;
+            background-color: #020617;
+            border-radius: 2.5rem;
+            padding: 24px;
+            border: 1px solid #1e293b;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            height: fit-content;
+        }
+
+        .flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .flex-grow { flex-grow: 1; }
+        .grid { display: grid; }
+        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .gap-4 { gap: 16px; }
+        .gap-2 { gap: 8px; }
+        .space-y-4 > * + * { margin-top: 16px; }
+        .space-y-3 > * + * { margin-top: 12px; }
+        .mb-6 { margin-bottom: 24px; }
+        .mb-8 { margin-bottom: 32px; }
+        .mt-4 { margin-top: 16px; }
+        .hidden { display: none; }
+
+        h1 { font-size: 1.5rem; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -0.05em; }
+        .sub-header { font-size: 10px; color: var(--indigo); font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; }
+        .label-xs { font-size: 10px; text-transform: uppercase; font-weight: 900; color: #64748b; }
+
+        input[type="date"], input[type="number"], input[type="text"], select {
+            background-color: #1e293b;
+            color: white;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 8px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        #food-select { font-size: 13px !important; padding: 12px !important; }
+        .full-input { width: 100%; box-sizing: border-box; padding: 12px !important; }
+
+        .btn-primary {
+            background-color: white;
+            color: #0f172a;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 16px;
+            border-radius: 1rem;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background-color: var(--slate-800);
+            color: white;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px;
+            border-radius: 1rem;
+            border: 1px solid var(--slate-700);
+            width: 100%;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .progress-card {
+            background-color: var(--indigo);
+            padding: 20px;
+            border-radius: 2rem;
+            border: none;
+            text-align: left;
+            width: 100%;
+            color: white;
+            cursor: pointer;
+        }
+
+        .progress-bar { height: 10px; border-radius: 9999px; background-color: rgba(15, 23, 42, 0.5); overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 0.5s; background-color: white; }
+
+        .food-row {
+            background-color: rgba(30, 41, 59, 0.4);
+            border: 1px solid #1e293b;
+            padding: 16px;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .remove-btn {
+            background-color: #7f1d1d;
+            color: white;
+            border: 1px solid #991b1b;
+            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .rotate-180 { transform: rotate(180deg); transition: transform 0.2s; }
+
+        #reader {
+            width: 100%;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--slate-700);
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1>Macros</h1>
+                <p class="sub-header">v3.95 Persistence Plus</p>
+            </div>
+            <input type="date" id="app-date-selector">
+        </div>
+
+        <div class="mb-6">
+            <button id="toggle-settings" style="width:100%; background:#1e293b; border:1px solid #334155; color:white; padding:12px; border-radius:12px; display:flex; justify-content:space-between;">
+                <span id="settings-label" class="label-xs">Body Stats & Goals</span>
+                <span id="settings-chevron">▼</span>
+            </button>
+            <div id="settings-content" class="hidden mt-4 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="label-xs">Weight (lbs)</label><input type="number" id="input-weight" class="full-input" value="150"></div>
+                    <div><label class="label-xs">Age (yrs)</label><input type="number" id="input-age" class="full-input" value="66"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="label-xs">Height (Ft)</label><input type="number" id="input-ft" class="full-input" value="5"></div>
+                    <div><label class="label-xs">Height (In)</label><input type="number" id="input-in" class="full-input" value="10"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="label-xs">Gender</label>
+                        <select id="input-gender" class="full-input">
+                            <option value="male" selected>Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div><label class="label-xs">Protein g/lb</label><input type="number" id="input-gpl" class="full-input" value="1" step="0.1"></div>
+                </div>
+                <div>
+                    <label class="label-xs">Activity Level</label>
+                    <select id="input-activity" class="full-input">
+                        <option value="1.2">Sedentary</option>
+                        <option value="1.375">Lightly Active</option>
+                        <option value="1.55" selected>Moderately Active</option>
+                        <option value="1.725">Very Active</option>
+                        <option value="1.9">Extra Active</option>
+                    </select>
+                </div>
+                <div style="background:rgba(99,102,241,0.1); padding:12px; border-radius:12px;" class="grid grid-cols-2 gap-4">
+                    <div style="text-align:center;">
+                        <label class="label-xs" style="color:#818cf8;">Protein Goal (g)</label>
+                        <input type="number" id="target-p" style="background:transparent; border:none; color:white; font-size:1.25rem; font-weight:900; width:100%; text-align:center;" value="150">
+                    </div>
+                    <div style="text-align:center;">
+                        <label class="label-xs" style="color:#fb7185;">Calorie Goal</label>
+                        <input type="number" id="target-cal" style="background:transparent; border:none; color:white; font-size:1.25rem; font-weight:900; width:100%; text-align:center;" value="2000">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="label-xs">Fat Goal (g)</label><input type="number" id="target-f" class="full-input" value="150"></div>
+                    <div><label class="label-xs">Carb Goal (g)</label><input type="number" id="target-c" class="full-input" value="30"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <button id="toggle-progress" class="progress-card">
+                <div class="flex justify-between items-center">
+                    <span class="label-xs" style="color:white;">Live Progress</span>
+                    <span id="smart-summary" style="font-weight:900;">0g P / 0 Cal</span>
+                </div>
+                <div id="progress-content" class="hidden mt-4 space-y-4" style="border-top: 1px solid rgba(255,255,255,0.2); padding-top:16px;">
+                    <div>
+                        <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Protein</span><span id="p-text">0/150</span></div>
+                        <div class="progress-bar"><div id="p-bar" class="progress-fill" style="width:0%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Fat</span><span id="f-text">0/150</span></div>
+                        <div class="progress-bar"><div id="f-bar" class="progress-fill" style="width:0%; background:var(--amber);"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Carbs</span><span id="c-text">0/30</span></div>
+                        <div class="progress-bar"><div id="c-bar" class="progress-fill" style="width:0%; background:var(--emerald);"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Calories</span><span id="cal-text">0/1600</span></div>
+                        <div class="progress-bar"><div id="cal-bar" class="progress-fill" style="width:0%; background:var(--rose);"></div></div>
+                    </div>
+                </div>
+            </button>
+        </div>
+
+        <div class="mb-6">
+            <button id="toggle-history" style="width:100%; background:#1e293b; border:1px solid #334155; color:white; padding:12px; border-radius:12px; display:flex; justify-content:space-between;">
+                <span class="label-xs">7-Day Trends</span>
+                <span id="history-chevron">▼</span>
+            </button>
+            <div id="history-content" class="hidden mt-4">
+                <div id="weekly-table-container" style="background:rgba(30,41,59,0.4); border-radius:1rem; border:1px solid #1e293b; overflow:hidden;"></div>
+            </div>
+        </div>
+
+        <div class="mb-6 space-y-3">
+            <div class="grid grid-cols-2 gap-4">
+                <button id="toggle-manual" class="btn-secondary">Manual Entry</button>
+                <button id="toggle-scan" class="btn-secondary">Scan Barcode</button>
+            </div>
+
+            <div id="manual-entry-form" class="hidden space-y-4 p-4" style="background:var(--slate-800); border-radius:1rem; border:1px solid var(--slate-700);">
+                <p class="label-xs">New Custom Item</p>
+                <input type="text" id="manual-name" placeholder="Item Name (e.g. Cafe Breve)" class="full-input">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="label-xs">Protein (g)</label><input type="number" id="manual-p" class="full-input" placeholder="0"></div>
+                    <div><label class="label-xs">Fat (g)</label><input type="number" id="manual-f" class="full-input" placeholder="0"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="label-xs">Carbs (g)</label><input type="number" id="manual-c" class="full-input" placeholder="0"></div>
+                    <div><label class="label-xs">Calories</label><input type="number" id="manual-cal" class="full-input" placeholder="0"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="label-xs">Unit</label>
+                        <select id="manual-unit" class="full-input">
+                            <option value="gm">gm</option>
+                            <option value="oz">oz</option>
+                            <option value="units">units</option>
+                        </select>
+                    </div>
+                    <div><label class="label-xs">Serving Size</label><input type="number" id="manual-def" class="full-input" value="100"></div>
+                </div>
+                <button id="save-manual-btn" class="btn-primary">Save to Custom DB</button>
+            </div>
+
+            <div id="scanner-container" class="hidden">
+                <div id="reader"></div>
+                <button id="close-scan-btn" class="btn-secondary">Close Scanner</button>
+            </div>
+        </div>
+
+        <div class="space-y-3 mb-8">
+            <select id="food-select" class="full-input" style="padding:16px !important; border-radius:1rem;">
+                <option value="" disabled selected>Select Food to Add...</option>
+            </select>
+            <button id="add-btn" class="btn-primary">Add to Log</button>
+        </div>
+
+        <div id="food-log" class="space-y-3 mb-8"></div>
+    </div>
+
+<script>
+    const foodDb = {
+        'bake-believe-choc': { name: 'Bake Believe Choc Chips (1 Tbsp)', p: 6.67, f: 30, c: 60, cal: 400, def: 15, unit: 'gm', isUnit: false },
+        'kirkland-beef-patty': { name: 'Kirkland Beef Patty', p: 25, f: 27.5, c: 0, cal: 313, def: 151, unit: 'gm', isUnit: false },
+        'darigold-half-half': { name: 'Darigold Half and Half (2 Tbsp)', p: 3.33, f: 10, c: 3.33, cal: 133.33, def: 1.06, unit: 'oz', isUnit: false },
+        'chomps-beef': { name: 'Beef Stick Chomps (1 Stick)', p: 31.25, f: 21.87, c: 0, cal: 312.5, def: 32, unit: 'gm', isUnit: false },
+        'tillamook-square': { name: 'Tillamook Cheddar Square', p: 23.81, f: 33.33, c: 4.76, cal: 428.57, def: 21, unit: 'gm', isUnit: false },
+        'ribeye': { name: 'Ribeye Steak', p: 32.5, f: 32.5, c: 0, cal: 349, def: 6, unit: 'oz', isUnit: false },
+        'chuck-roast': { name: 'Beef Chuck Roast', p: 31.25, f: 21, c: 0, cal: 265, def: 6, unit: 'oz', isUnit: false },
+        'egg-medium': { name: 'Egg - One Medium', p: 6, f: 5.5, c: 0.65, cal: 77, def: 1, unit: 'units', isUnit: true },
+        'egg-large': { name: 'Egg - One Large', p: 6.3, f: 6.5, c: 0.8, cal: 87, def: 1, unit: 'units', isUnit: true },
+        'hamburger-80': { name: '80% Lean Hamburger', p: 25, f: 27.5, c: 0, cal: 282, def: 6, unit: 'oz', isUnit: false },
+        'hamburger-90': { name: '90% Lean Hamburger', p: 30, f: 15, c: 0, cal: 203, def: 6, unit: 'oz', isUnit: false },
+        'pork-roast': { name: 'Pork Shoulder Roast', p: 32.5, f: 25, c: 0, cal: 248, def: 6, unit: 'oz', isUnit: false },
+        'chicken-breast': { name: 'Chicken Breast', p: 38.75, f: 5, c: 0, cal: 175, def: 6, unit: 'oz', isUnit: false },
+        'chicken-thigh': { name: 'Chicken Thigh', p: 32.5, f: 15, c: 0, cal: 218, def: 6, unit: 'oz', isUnit: false },
+        'peanut-butter': { name: 'Kirkland Peanut Butter Organic (1 Tbsp)', p: 24.5, f: 52.5, c: 21.87, cal: 682, def: 16, unit: 'gm', isUnit: false },
+        'cheddar-cheese': { name: 'Cheese, Cheddar', p: 24, f: 34, c: 2, cal: 416, def: 2, unit: 'oz', isUnit: false },
+        'sour-cream': { name: 'Darigold Sour Cream (2 Tbsp)', p: 3, f: 20, c: 3.75, cal: 200, def: 30, unit: 'gm', isUnit: false },
+        'kirkland-a2-milk': { name: 'Kirkland A2 Milk (1 cup)', p: 3.53, f: 3.97, c: 4.85, cal: 70.5, def: 8, unit: 'oz', isUnit: false },
+        'lucerne-greek': { name: 'Yogurt Lucerne Greek (2/3 cup)', p: 8, f: 4, c: 4.7, cal: 88, def: 170, unit: 'gm', isUnit: false },
+        'wild-planet-sardines': { name: 'Wild Planet Sardines', p: 20.93, f: 12.79, c: 0, cal: 197.67, def: 1, unit: 'units', isUnit: true },
+        'kefir': { name: '15% Milkfat Kefir', p: 3.5, f: 15, c: 4.5, cal: 174, def: 4, unit: 'oz', isUnit: false },
+        'kirkland-peanuts': { name: 'Kirkland Peanuts (1/4 cup)', p: 26.67, f: 50, c: 20, cal: 566.67, def: 30, unit: 'gm', isUnit: false },
+        'levels-whey-dc': { name: 'Whey Levels - Dbl Choc (1 Scoop)', p: 75, f: 7.8, c: 12.5, cal: 412, def: 32, unit: 'gm', isUnit: false },
+        'ncost-whey-choc-pb': { name: 'Whey Nutricost - Choc PB (1 Scoop)', p: 65.8, f: 7.89, c: 10.53, cal: 368.42, def: 38, unit: 'gm', isUnit: false },
+        'ncost-whey-plain': { name: 'Whey Nutricost - Plain (1 Scoop)', p: 75.76, f: 6.06, c: 3.03, cal: 363.64, def: 33, unit: 'gm', isUnit: false },
+        'rx-bar-sea-salt': { name: 'RX Bar - Sea Salt', p: 23, f: 14, c: 44, cal: 414, def: 1, unit: 'units', isUnit: true },
+        'rx-bar-pb-choc': { name: 'RX Bar - PB Choc', p: 23, f: 14, c: 44, cal: 414, def: 1, unit: 'units', isUnit: true },
+        'kirkland-org-creamy-pb': { name: 'Kirkland Peanut Butter - Creamy, Organic (2 Tbsp)', p: 25.04, f: 46.95, c: 21.91, cal: 563.4, def: 32, unit: 'gm', isUnit: false },
+        'Tart-montmorecy-cherry': { name: 'Kirkland Tart Montmorency Cherries (1/3 cup)', p: 0, f: 0, c: 77.5, cal: 325, def: 40, unit: 'gm', isUnit: false },
+        'mct-verdana': { name: 'MCT Oil Verdana (1 Tbsp)', p: 0, f: 99.96, c: 0, cal: 928.2, def: 14, unit: 'gm', isUnit: false },
+        'bacon-hemplers': { name: 'Bacon Hempler’s – 2 slices', p: 42.84, f: 23.8, c: 0, cal: 428.4, def: 21, unit: 'gm', isUnit: false },
+        'kirkland-beef-sticks': { name: 'Kirkland Beef Sticks (1 Stick)', p: 31.3, f: 21.91, c: 3.13, cal: 313, def: 32, unit: 'gm', isUnit: true },
+        'nutrail-nut-granola': { name: 'Granola Nutrail Blueberry (1/3 cup)', p: 13.32, f: 49.95, c: 29.97, cal: 532.8, def: 30, unit: 'gm', isUnit: false },
+        'autumngold-nut-granola': { name: 'Granola Autumn Gold (1/4 cup)', p: 14.8, f: 48.1, c: 37, cal: 629, def: 27, unit: 'gm', isUnit: false },
+        'rx-bar-pb': { name: 'RX Bar - Peanut Butter', p: 23, f: 14, c: 44, cal: 414, def: 1, unit: 'units', isUnit: true }
+    };
+
+    let storage = JSON.parse(localStorage.getItem('macros_offline')) || {};
+    let customDb = JSON.parse(localStorage.getItem('custom_food_db')) || {};
+    let activeDate = new Date().toLocaleDateString('en-CA');
+
+    const dateIn = document.getElementById('app-date-selector');
+    const foodSel = document.getElementById('food-select');
+    const foodLogUI = document.getElementById('food-log');
+
+    // --- PERSISTENCE LOGIC ---
+    function saveAll() {
+        localStorage.setItem('macros_offline', JSON.stringify(storage));
+
+        const goals = {
+            weight: document.getElementById('input-weight').value,
+            age: document.getElementById('input-age').value,
+            ft: document.getElementById('input-ft').value,
+            in: document.getElementById('input-in').value,
+            gender: document.getElementById('input-gender').value,
+            gpl: document.getElementById('input-gpl').value,
+            activity: document.getElementById('input-activity').value,
+            tp: document.getElementById('target-p').value,
+            tf: document.getElementById('target-f').value,
+            tc: document.getElementById('target-c').value,
+            tcal: document.getElementById('target-cal').value
+        };
+        localStorage.setItem('macro_goals', JSON.stringify(goals));
+
+        // UI Feedback: Flash the label to show save happened
+        const label = document.getElementById('settings-label');
+        if (label) {
+            label.style.color = 'var(--emerald)';
+            setTimeout(() => label.style.color = '#64748b', 300);
+        }
+    }
+
+    function loadGoals() {
+        const savedGoals = JSON.parse(localStorage.getItem('macro_goals'));
+        if (savedGoals) {
+            document.getElementById('input-weight').value = savedGoals.weight;
+            document.getElementById('input-age').value = savedGoals.age;
+            document.getElementById('input-ft').value = savedGoals.ft;
+            document.getElementById('input-in').value = savedGoals.in;
+            document.getElementById('input-gender').value = savedGoals.gender;
+            document.getElementById('input-gpl').value = savedGoals.gpl;
+            document.getElementById('input-activity').value = savedGoals.activity;
+            document.getElementById('target-p').value = savedGoals.tp;
+            document.getElementById('target-f').value = savedGoals.tf;
+            document.getElementById('target-c').value = savedGoals.tc;
+            document.getElementById('target-cal').value = savedGoals.tcal;
+        }
+    }
+
+    // --- APP CORE ---
+    function initFoodSelect() {
+        foodSel.innerHTML = '<option value="" disabled selected>Select Food to Add...</option>';
+        const combinedDb = { ...foodDb, ...customDb };
+        Object.keys(combinedDb).sort((a,b) => combinedDb[a].name.localeCompare(combinedDb[b].name)).forEach(id => {
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = combinedDb[id].name;
+            foodSel.appendChild(opt);
+        });
+    }
+
+    window.addEventListener('load', () => {
+        loadGoals();
+        dateIn.value = activeDate;
+
+        initFoodSelect();
+        loadDate(activeDate);
+
+        // Bind Listeners
+        const goalInputs = ['input-weight', 'input-age', 'input-ft', 'input-in', 'input-gender', 'input-gpl', 'input-activity', 'target-p', 'target-f', 'target-c', 'target-cal'];
+        goalInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', () => {
+                    if(id.startsWith('input-')) syncGoals();
+                    else calc();
+                    saveAll();
+                });
+            }
+        });
+    });
+
+    function syncGoals() {
+        const lb = parseFloat(document.getElementById('input-weight').value) || 0;
+        const gpl = parseFloat(document.getElementById('input-gpl').value) || 0;
+        const age = parseFloat(document.getElementById('input-age').value) || 0;
+        const ft = parseFloat(document.getElementById('input-ft').value) || 0;
+        const inch = parseFloat(document.getElementById('input-in').value) || 0;
+        const gender = document.getElementById('input-gender').value;
+        const multiplier = parseFloat(document.getElementById('input-activity').value);
+
+        const kg = lb * 0.453592;
+        const cm = ((ft * 12) + inch) * 2.54;
+
+        let bmr = (10 * kg) + (6.25 * cm) - (5 * age);
+        bmr = (gender === 'male') ? bmr + 5 : bmr - 161;
+
+        document.getElementById('target-p').value = Math.round(lb * gpl);
+        document.getElementById('target-cal').value = Math.round(bmr * multiplier);
+        calc();
+    }
+
+    function loadDate(date) {
+        activeDate = date;
+        foodLogUI.innerHTML = '';
+        if (!storage[activeDate]) storage[activeDate] = [];
+        storage[activeDate].forEach((entry, idx) => renderRow(entry, idx));
+        calc();
+    }
+
+    function renderRow(entry, idx) {
+        const combinedDb = { ...foodDb, ...customDb };
+        const info = combinedDb[entry.id];
+        if (!info) return;
+        const div = document.createElement('div');
+        div.className = "food-row";
+        const unitHtml = info.isUnit ? `<span class="label-xs">Units</span>` :
+            `<select class="unit-edit" style="background:transparent; border:none; color:var(--indigo); font-size:9px; font-weight:900;">
+                <option value="gm" ${entry.unit === 'gm' ? 'selected' : ''}>gm</option>
+                <option value="oz" ${entry.unit === 'oz' ? 'selected' : ''}>oz</option>
+            </select>`;
+
+        div.innerHTML = `<div class="flex-grow">
+            <p style="font-size:12px; font-weight:bold; margin:0;">${info.name}</p>
+            <div class="flex items-center gap-2 mt-2">
+                <input type="number" value="${entry.qty}" class="qty-input" style="width:50px; background:black; border:1px solid #334155; color:var(--indigo); padding:4px; border-radius:6px;">
+                ${unitHtml}
+            </div>
+        </div>
+        <div style="text-align:right;">
+            <p style="font-size:14px; font-weight:900; margin:0;"><span class="row-p">0</span><span style="font-size:10px; color:#64748b; margin-left:2px;">g P</span></p>
+            <p style="font-size:10px; color:var(--rose); font-weight:bold; margin:0;"><span class="row-cal">0</span> cal</p>
+        </div>
+        <button class="remove-btn">✕</button>`;
+
+        const qtyIn = div.querySelector('.qty-input');
+        qtyIn.oninput = () => { storage[activeDate][idx].qty = parseFloat(qtyIn.value) || 0; saveAll(); calc(); };
+        const unitIn = div.querySelector('.unit-edit');
+        if(unitIn) unitIn.onchange = () => { storage[activeDate][idx].unit = unitIn.value; saveAll(); calc(); };
+        div.querySelector('.remove-btn').onclick = () => { storage[activeDate].splice(idx, 1); saveAll(); loadDate(activeDate); };
+        foodLogUI.appendChild(div);
+    }
+
+    function calc() {
+        let totals = { p:0, f:0, c:0, cal:0 };
+        const entries = storage[activeDate] || [];
+        const combinedDb = { ...foodDb, ...customDb };
+        entries.forEach((entry, idx) => {
+            const item = combinedDb[entry.id];
+            if(!item) return;
+            let mult = item.isUnit ? entry.qty : (entry.unit === 'oz' ? entry.qty * 28.35 : entry.qty) / 100;
+            const p = item.p * mult, f = item.f * mult, c = item.c * mult, cal = item.cal * mult;
+            totals.p += p; totals.f += f; totals.c += c; totals.cal += cal;
+            const row = foodLogUI.children[idx];
+            if(row) { row.querySelector('.row-p').textContent = p.toFixed(0); row.querySelector('.row-cal').textContent = Math.round(cal); }
+        });
+        updateUI(totals);
+        updateWeeklyTrends();
+    }
+
+    function updateUI(t) {
+        const targets = {
+            p: document.getElementById('target-p').value,
+            f: document.getElementById('target-f').value,
+            c: document.getElementById('target-c').value,
+            cal: document.getElementById('target-cal').value
+        };
+        const set = (id, cur, tar) => {
+            const textEl = document.getElementById(`${id}-text`);
+            const barEl = document.getElementById(`${id}-bar`);
+            if(textEl) textEl.textContent = `${Math.round(cur)} / ${tar}`;
+            if(barEl) barEl.style.width = Math.min(100, (cur/tar)*100) + '%';
+        };
+        set('p', t.p, targets.p); set('f', t.f, targets.f); set('c', t.c, targets.c); set('cal', t.cal, targets.cal);
+        document.getElementById('smart-summary').textContent = `${Math.round(t.p)}g P / ${Math.round(t.cal)} Cal`;
+    }
+
+    function updateWeeklyTrends() {
+        const container = document.getElementById('weekly-table-container');
+        const tP = parseFloat(document.getElementById('target-p').value) || 0;
+        const tC = parseFloat(document.getElementById('target-c').value) || 0;
+        const tCal = parseFloat(document.getElementById('target-cal').value) || 0;
+        const combinedDb = { ...foodDb, ...customDb };
+
+        let html = `<table style="width:100%; border-collapse:collapse; font-size:10px; text-align:left; table-layout: fixed;">
+            <thead><tr style="border-bottom:1px solid #334155; color:#64748b; text-transform:uppercase;">
+                <th style="padding:10px 4px 10px 12px; width: 22%;">Date</th>
+                <th style="padding:10px 4px; text-align:center;">P</th>
+                <th style="padding:10px 4px; text-align:center;">F</th>
+                <th style="padding:10px 4px; text-align:center;">C</th>
+                <th style="padding:10px 12px 10px 4px; text-align:right;">Cal</th>
+            </tr></thead><tbody>`;
+
+        for (let i = 0; i < 7; i++) {
+            let d = new Date();
+            d.setDate(d.getDate() - i);
+            let dStr = d.toLocaleDateString('en-CA');
+            let day = { p: 0, f: 0, c: 0, cal: 0 };
+
+            if (storage[dStr]) {
+                storage[dStr].forEach(entry => {
+                    const item = combinedDb[entry.id];
+                    if (item) {
+                        let mult = item.isUnit ? entry.qty : (entry.unit === 'oz' ? entry.qty * 28.35 : entry.qty) / 100;
+                        day.p += (item.p * mult); day.f += (item.f * mult); day.c += (item.c * mult); day.cal += (item.cal * mult);
+                    }
+                });
+            }
+
+            const pColor = (day.p < (tP * 0.8)) ? 'var(--rose)' : 'var(--indigo)';
+            const cColor = (day.c > tC) ? 'var(--rose)' : 'var(--emerald)';
+            const calColor = (day.cal > tCal) ? 'var(--rose)' : 'white';
+            const label = i === 0 ? "Today" : d.toLocaleDateString('en-US', {weekday:'short', month:'numeric', day:'numeric'});
+
+            html += `<tr style="background:${i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'}; border-bottom:1px solid rgba(51,65,85,0.2);">
+                <td style="padding:12px 4px 12px 12px; font-weight:900; white-space:nowrap;">${label}</td>
+                <td style="padding:12px 4px; text-align:center; color:${pColor}; font-weight:bold;">${Math.round(day.p)}</td>
+                <td style="padding:12px 4px; text-align:center; color:#94a3b8;">${Math.round(day.f)}</td>
+                <td style="padding:12px 4px; text-align:center; color:${cColor}; font-weight:bold;">${Math.round(day.c)}</td>
+                <td style="padding:12px 12px 10px 4px; text-align:right; color:${calColor}; font-weight:900;">${Math.round(day.cal)}</td>
+            </tr>`;
+        }
+        container.innerHTML = html + `</tbody></table>`;
+    }
+
+    // --- NEW LOGIC: SCANNER & MANUAL ENTRY ---
+    let html5QrCode;
+
+    async function onScanSuccess(decodedText, decodedResult) {
+        if (html5QrCode) {
+            await html5QrCode.stop();
+            document.getElementById('scanner-container').classList.add('hidden');
+        }
+
+        try {
+            const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
+            const data = await response.json();
+
+            if (data.status === 1) {
+                const product = data.product;
+                const nutrients = product.nutriments;
+                const name = product.product_name || "Unknown Item";
+
+                // Open Food Facts nutrients are usually per 100g
+                const p = nutrients.proteins_100g || 0;
+                const f = nutrients.fat_100g || 0;
+                const c = nutrients.carbohydrates_100g || 0;
+                const cal = nutrients.energy_kcal_100g || 0;
+
+                const id = 'scan-' + decodedText;
+                customDb[id] = {
+                    name: name,
+                    p: parseFloat(p),
+                    f: parseFloat(f),
+                    c: parseFloat(c),
+                    cal: parseFloat(cal),
+                    def: 100,
+                    unit: 'gm',
+                    isUnit: false
+                };
+
+                localStorage.setItem('custom_food_db', JSON.stringify(customDb));
+                initFoodSelect();
+                foodSel.value = id;
+                alert(`Found: ${name}`);
+            } else {
+                alert("Product not found in Open Food Facts.");
+            }
+        } catch (error) {
+            console.error("Error fetching food data:", error);
+            alert("Error fetching food data.");
+        }
+    }
+
+    document.getElementById('toggle-scan').onclick = () => {
+        document.getElementById('scanner-container').classList.remove('hidden');
+        document.getElementById('manual-entry-form').classList.add('hidden');
+
+        html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
+    };
+
+    document.getElementById('close-scan-btn').onclick = async () => {
+        if (html5QrCode) await html5QrCode.stop();
+        document.getElementById('scanner-container').classList.add('hidden');
+    };
+
+    document.getElementById('toggle-manual').onclick = () => {
+        document.getElementById('manual-entry-form').classList.toggle('hidden');
+        document.getElementById('scanner-container').classList.add('hidden');
+    };
+
+    document.getElementById('save-manual-btn').onclick = () => {
+        const name = document.getElementById('manual-name').value;
+        const p = parseFloat(document.getElementById('manual-p').value) || 0;
+        const f = parseFloat(document.getElementById('manual-f').value) || 0;
+        const c = parseFloat(document.getElementById('manual-c').value) || 0;
+        const cal = parseFloat(document.getElementById('manual-cal').value) || 0;
+        const unit = document.getElementById('manual-unit').value;
+        const def = parseFloat(document.getElementById('manual-def').value) || 100;
+
+        if (!name) { alert("Please enter a name."); return; }
+
+        const id = 'custom-' + Date.now();
+        customDb[id] = {
+            name: name,
+            p: p,
+            f: f,
+            c: c,
+            cal: cal,
+            def: def,
+            unit: unit,
+            isUnit: unit === 'units'
+        };
+
+        localStorage.setItem('custom_food_db', JSON.stringify(customDb));
+        initFoodSelect();
+        foodSel.value = id;
+        document.getElementById('manual-entry-form').classList.add('hidden');
+
+        // Reset form
+        document.getElementById('manual-name').value = '';
+        document.getElementById('manual-p').value = '';
+        document.getElementById('manual-f').value = '';
+        document.getElementById('manual-c').value = '';
+        document.getElementById('manual-cal').value = '';
+    };
+
+    // Toggle Handlers
+    dateIn.onchange = (e) => loadDate(e.target.value);
+    document.getElementById('add-btn').onclick = () => {
+        const id = foodSel.value;
+        if(!id) return;
+        if(!storage[activeDate]) storage[activeDate] = [];
+        const combinedDb = { ...foodDb, ...customDb };
+        const item = combinedDb[id];
+        storage[activeDate].push({ id, qty: item.def, unit: item.unit });
+        saveAll(); loadDate(activeDate); foodSel.value = "";
+    };
+    document.getElementById('toggle-settings').onclick = () => {
+        document.getElementById('settings-content').classList.toggle('hidden');
+        document.getElementById('settings-chevron').classList.toggle('rotate-180');
+    };
+    document.getElementById('toggle-progress').onclick = () => document.getElementById('progress-content').classList.toggle('hidden');
+    document.getElementById('toggle-history').onclick = () => {
+        document.getElementById('history-content').classList.toggle('hidden');
+        document.getElementById('history-chevron').classList.toggle('rotate-180');
+    };
+</script>
+</body>
+</html>
