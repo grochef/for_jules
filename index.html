@@ -500,14 +500,14 @@
                 <option value="oz" ${entry.unit === 'oz' ? 'selected' : ''}>oz</option>
             </select>`;
 
-        div.innerHTML = `<div class="flex-grow" onclick="viewMacros('${entry.id}', ${entry.qty}, '${entry.unit}')">
+        div.innerHTML = `<div class="flex-grow" onclick="openEditPopup('${entry.id}')">
             <p style="font-size:12px; font-weight:bold; margin:0;">${info.name}</p>
             <div class="flex items-center gap-2 mt-2">
                 <input type="number" value="${entry.qty}" class="qty-input" style="width:50px; background:black; border:1px solid #334155; color:var(--indigo); padding:4px; border-radius:6px;" onclick="event.stopPropagation()">
                 ${unitHtml}
             </div>
         </div>
-        <div style="text-align:right;" onclick="viewMacros('${entry.id}', ${entry.qty}, '${entry.unit}')">
+        <div style="text-align:right;" onclick="openEditPopup('${entry.id}')">
             <p style="font-size:14px; font-weight:900; margin:0;"><span class="row-p">0</span><span style="font-size:10px; color:#64748b; margin-left:2px;">g P</span></p>
             <p style="font-size:10px; color:var(--rose); font-weight:bold; margin:0;"><span class="row-cal">0</span> cal</p>
         </div>
@@ -611,44 +611,6 @@
 
     // --- POPUP FORMS & LOGIC ---
 
-    function viewMacros(id, qty, unit) {
-        const item = fullFoodDb[id];
-        if (!item) return;
-        let mult = item.isUnit ? qty : (unit === 'oz' ? qty * 28.35 : qty) / 100;
-        const p = (item.p * mult).toFixed(1);
-        const f = (item.f * mult).toFixed(1);
-        const c = (item.c * mult).toFixed(1);
-        const cal = Math.round(item.cal * mult);
-
-        showModal(`
-            <p class="label-xs">Macro Viewer</p>
-            <h2 style="margin:0;">${item.name}</h2>
-            <div class="mt-4 space-y-2">
-                <p class="label-xs">Serving Detail: ${item.def} ${item.unit} ${item.isUnit ? '(Single Item)' : ''}</p>
-                <div class="grid grid-cols-2 gap-4">
-                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                        <p class="label-xs" style="color:var(--indigo);">Protein</p>
-                        <p style="font-size:1.5rem; font-weight:900; margin:0;">${p}g</p>
-                    </div>
-                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                        <p class="label-xs" style="color:var(--rose);">Calories</p>
-                        <p style="font-size:1.5rem; font-weight:900; margin:0;">${cal}</p>
-                    </div>
-                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                        <p class="label-xs" style="color:var(--amber);">Fat</p>
-                        <p style="font-size:1rem; font-weight:900; margin:0;">${f}g</p>
-                    </div>
-                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                        <p class="label-xs" style="color:var(--emerald);">Carbs</p>
-                        <p style="font-size:1rem; font-weight:900; margin:0;">${c}g</p>
-                    </div>
-                </div>
-                <p class="label-xs mt-4">Current Portion: ${qty} ${unit}</p>
-            </div>
-            <button onclick="closeModal()" class="btn-primary mt-4">Close</button>
-        `);
-    }
-
     function confirmDelete(idx) {
         showModal(`
             <p class="label-xs">Confirm Removal</p>
@@ -673,7 +635,7 @@
         const isUnit = item.isUnit || false;
         
         showModal(`
-            <p class="label-xs">${isNew ? 'New Custom Item' : 'Edit Item'}</p>
+            <p class="label-xs">${isNew ? 'New Custom Item' : 'Edit Item / Viewer'}</p>
             <input type="text" id="edit-name" placeholder="Item Name" class="full-input" value="${item.name || ''}">
             <div class="grid grid-cols-2 gap-4">
                 <div><label class="label-xs">Protein (g)</label><input type="number" id="edit-p" class="full-input" value="${item.p || 0}"></div>
@@ -712,7 +674,6 @@
         if (isUnit) {
             unitOpt.classList.remove('hidden');
             unitSel.value = 'units';
-            // Disable other options if desired, but hiding works
         } else {
             unitOpt.classList.add('hidden');
             if (unitSel.value === 'units') unitSel.value = 'gm';
@@ -739,7 +700,7 @@
         
         saveAll();
         initFoodSelect();
-        foodSel.value = id;
+        loadDate(activeDate);
         closeModal();
     }
 
@@ -761,7 +722,6 @@
                 const nutrients = product.nutriments;
                 const name = product.product_name || "Unknown Item";
                 
-                // Open Food Facts nutrients are usually per 100g
                 const p = nutrients.proteins_100g || nutrients.proteins || 0;
                 const f = nutrients.fat_100g || nutrients.fat || 0;
                 const c = nutrients.carbohydrates_100g || nutrients.carbohydrates || 0;
@@ -779,7 +739,6 @@
                 });
             } else {
                 alert("Product not found in Open Food Facts.");
-                // Still allow adding it manually
                 openEditPopup('scan-' + decodedText, { name: "Scanned Item (" + decodedText + ")" });
             }
         } catch (error) {
