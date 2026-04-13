@@ -4,11 +4,7 @@ plugins {
 
 android {
     namespace = "com.gregg.macrotracker"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.gregg.macrotracker"

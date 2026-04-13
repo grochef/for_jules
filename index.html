@@ -57,7 +57,7 @@
         .mb-6 { margin-bottom: 24px; }
         .mb-8 { margin-bottom: 32px; }
         .mt-4 { margin-top: 16px; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
 
         h1 { font-size: 1.5rem; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -0.05em; }
         .sub-header { font-size: 10px; color: var(--indigo); font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; }
@@ -103,6 +103,19 @@
             font-size: 12px;
         }
 
+        .btn-danger {
+            background-color: #7f1d1d;
+            color: white;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 12px;
+            border-radius: 1rem;
+            border: 1px solid #991b1b;
+            width: 100%;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
         .progress-card {
             background-color: var(--indigo);
             padding: 20px;
@@ -125,6 +138,7 @@
             display: flex;
             align-items: center;
             gap: 16px;
+            cursor: pointer;
         }
 
         .remove-btn {
@@ -147,6 +161,33 @@
             border: 1px solid var(--slate-700);
             margin-bottom: 16px;
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background: var(--slate-800);
+            padding: 24px;
+            border-radius: 2rem;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--slate-700);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -155,7 +196,7 @@
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h1>Macros</h1>
-                <p class="sub-header">v4.0 Persistence Plus</p>
+                <p class="sub-header">v4.0 Enhanced</p>
             </div>
             <input type="date" id="app-date-selector">
         </div>
@@ -254,31 +295,6 @@
                 <button id="toggle-scan" class="btn-secondary">Scan Barcode</button>
             </div>
 
-            <div id="manual-entry-form" class="hidden space-y-4 p-4" style="background:var(--slate-800); border-radius:1rem; border:1px solid var(--slate-700);">
-                <p class="label-xs">New Custom Item</p>
-                <input type="text" id="manual-name" placeholder="Item Name (e.g. Cafe Breve)" class="full-input">
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="label-xs">Protein (g)</label><input type="number" id="manual-p" class="full-input" placeholder="0"></div>
-                    <div><label class="label-xs">Fat (g)</label><input type="number" id="manual-f" class="full-input" placeholder="0"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="label-xs">Carbs (g)</label><input type="number" id="manual-c" class="full-input" placeholder="0"></div>
-                    <div><label class="label-xs">Calories</label><input type="number" id="manual-cal" class="full-input" placeholder="0"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="label-xs">Unit</label>
-                        <select id="manual-unit" class="full-input">
-                            <option value="gm">gm</option>
-                            <option value="oz">oz</option>
-                            <option value="units">units</option>
-                        </select>
-                    </div>
-                    <div><label class="label-xs">Serving Size</label><input type="number" id="manual-def" class="full-input" value="100"></div>
-                </div>
-                <button id="save-manual-btn" class="btn-primary">Save to Custom DB</button>
-            </div>
-
             <div id="scanner-container" class="hidden">
                 <div id="reader"></div>
                 <button id="close-scan-btn" class="btn-secondary">Close Scanner</button>
@@ -295,8 +311,15 @@
         <div id="food-log" class="space-y-3 mb-8"></div>
     </div>
 
+    <!-- Modal System -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div id="modal-body" class="space-y-4"></div>
+        </div>
+    </div>
+
 <script>
-    const foodDb = {
+    const initialFoodDb = {
         'bake-believe-choc': { name: 'Bake Believe Choc Chips (1 Tbsp)', p: 6.67, f: 30, c: 60, cal: 400, def: 15, unit: 'gm', isUnit: false },
         'kirkland-beef-patty': { name: 'Kirkland Beef Patty', p: 25, f: 27.5, c: 0, cal: 313, def: 151, unit: 'gm', isUnit: false },
         'darigold-half-half': { name: 'Darigold Half and Half (2 Tbsp)', p: 3.33, f: 10, c: 3.33, cal: 133.33, def: 1.06, unit: 'oz', isUnit: false },
@@ -334,17 +357,36 @@
         'rx-bar-pb': { name: 'RX Bar - Peanut Butter', p: 23, f: 14, c: 44, cal: 414, def: 1, unit: 'units', isUnit: true }
     };
 
+    // Seed LocalStorage with hardcoded list if empty
+    if (!localStorage.getItem('full_food_db')) {
+        localStorage.setItem('full_food_db', JSON.stringify(initialFoodDb));
+    }
+
     let storage = JSON.parse(localStorage.getItem('macros_offline')) || {};
-    let customDb = JSON.parse(localStorage.getItem('custom_food_db')) || {};
+    let fullFoodDb = JSON.parse(localStorage.getItem('full_food_db')) || initialFoodDb;
     let activeDate = new Date().toLocaleDateString('en-CA'); 
 
     const dateIn = document.getElementById('app-date-selector');
     const foodSel = document.getElementById('food-select');
     const foodLogUI = document.getElementById('food-log');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalBody = document.getElementById('modal-body');
+
+    // --- MODAL SYSTEM ---
+    function showModal(html) {
+        modalBody.innerHTML = html;
+        modalOverlay.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        modalOverlay.classList.add('hidden');
+        modalBody.innerHTML = '';
+    }
 
     // --- PERSISTENCE LOGIC ---
     function saveAll() { 
         localStorage.setItem('macros_offline', JSON.stringify(storage)); 
+        localStorage.setItem('full_food_db', JSON.stringify(fullFoodDb));
         
         const goals = {
             weight: document.getElementById('input-weight').value,
@@ -389,11 +431,10 @@
     // --- APP CORE ---
     function initFoodSelect() {
         foodSel.innerHTML = '<option value="" disabled selected>Select Food to Add...</option>';
-        const combinedDb = { ...foodDb, ...customDb };
-        Object.keys(combinedDb).sort((a,b) => combinedDb[a].name.localeCompare(combinedDb[b].name)).forEach(id => {
+        Object.keys(fullFoodDb).sort((a,b) => fullFoodDb[a].name.localeCompare(fullFoodDb[b].name)).forEach(id => {
             const opt = document.createElement('option'); 
             opt.value = id; 
-            opt.textContent = combinedDb[id].name; 
+            opt.textContent = fullFoodDb[id].name;
             foodSel.appendChild(opt);
         });
     }
@@ -448,8 +489,7 @@
     }
 
     function renderRow(entry, idx) {
-        const combinedDb = { ...foodDb, ...customDb };
-        const info = combinedDb[entry.id];
+        const info = fullFoodDb[entry.id];
         if (!info) return;
         const div = document.createElement('div');
         div.className = "food-row";
@@ -459,14 +499,14 @@
                 <option value="oz" ${entry.unit === 'oz' ? 'selected' : ''}>oz</option>
             </select>`;
 
-        div.innerHTML = `<div class="flex-grow">
+        div.innerHTML = `<div class="flex-grow" onclick="viewMacros('${entry.id}', ${entry.qty}, '${entry.unit}')">
             <p style="font-size:12px; font-weight:bold; margin:0;">${info.name}</p>
             <div class="flex items-center gap-2 mt-2">
-                <input type="number" value="${entry.qty}" class="qty-input" style="width:50px; background:black; border:1px solid #334155; color:var(--indigo); padding:4px; border-radius:6px;">
+                <input type="number" value="${entry.qty}" class="qty-input" style="width:50px; background:black; border:1px solid #334155; color:var(--indigo); padding:4px; border-radius:6px;" onclick="event.stopPropagation()">
                 ${unitHtml}
             </div>
         </div>
-        <div style="text-align:right;">
+        <div style="text-align:right;" onclick="viewMacros('${entry.id}', ${entry.qty}, '${entry.unit}')">
             <p style="font-size:14px; font-weight:900; margin:0;"><span class="row-p">0</span><span style="font-size:10px; color:#64748b; margin-left:2px;">g P</span></p>
             <p style="font-size:10px; color:var(--rose); font-weight:bold; margin:0;"><span class="row-cal">0</span> cal</p>
         </div>
@@ -474,18 +514,25 @@
 
         const qtyIn = div.querySelector('.qty-input');
         qtyIn.oninput = () => { storage[activeDate][idx].qty = parseFloat(qtyIn.value) || 0; saveAll(); calc(); };
+
         const unitIn = div.querySelector('.unit-edit');
-        if(unitIn) unitIn.onchange = () => { storage[activeDate][idx].unit = unitIn.value; saveAll(); calc(); };
-        div.querySelector('.remove-btn').onclick = () => { storage[activeDate].splice(idx, 1); saveAll(); loadDate(activeDate); };
+        if(unitIn) {
+            unitIn.onclick = (e) => e.stopPropagation();
+            unitIn.onchange = () => { storage[activeDate][idx].unit = unitIn.value; saveAll(); calc(); };
+        }
+
+        div.querySelector('.remove-btn').onclick = (e) => {
+            e.stopPropagation();
+            confirmDelete(idx);
+        };
         foodLogUI.appendChild(div);
     }
 
     function calc() {
         let totals = { p:0, f:0, c:0, cal:0 };
         const entries = storage[activeDate] || [];
-        const combinedDb = { ...foodDb, ...customDb };
         entries.forEach((entry, idx) => {
-            const item = combinedDb[entry.id]; 
+            const item = fullFoodDb[entry.id];
             if(!item) return;
             let mult = item.isUnit ? entry.qty : (entry.unit === 'oz' ? entry.qty * 28.35 : entry.qty) / 100;
             const p = item.p * mult, f = item.f * mult, c = item.c * mult, cal = item.cal * mult;
@@ -519,7 +566,6 @@
         const tP = parseFloat(document.getElementById('target-p').value) || 0;
         const tC = parseFloat(document.getElementById('target-c').value) || 0;
         const tCal = parseFloat(document.getElementById('target-cal').value) || 0;
-        const combinedDb = { ...foodDb, ...customDb };
 
         let html = `<table style="width:100%; border-collapse:collapse; font-size:10px; text-align:left; table-layout: fixed;">
             <thead><tr style="border-bottom:1px solid #334155; color:#64748b; text-transform:uppercase;">
@@ -538,7 +584,7 @@
             
             if (storage[dStr]) {
                 storage[dStr].forEach(entry => {
-                    const item = combinedDb[entry.id];
+                    const item = fullFoodDb[entry.id];
                     if (item) {
                         let mult = item.isUnit ? entry.qty : (entry.unit === 'oz' ? entry.qty * 28.35 : entry.qty) / 100;
                         day.p += (item.p * mult); day.f += (item.f * mult); day.c += (item.c * mult); day.cal += (item.cal * mult);
@@ -562,7 +608,117 @@
         container.innerHTML = html + `</tbody></table>`;
     }
 
-    // --- NEW LOGIC: SCANNER & MANUAL ENTRY ---
+    // --- POPUP FORMS & LOGIC ---
+
+    function viewMacros(id, qty, unit) {
+        const item = fullFoodDb[id];
+        if (!item) return;
+        let mult = item.isUnit ? qty : (unit === 'oz' ? qty * 28.35 : qty) / 100;
+        const p = (item.p * mult).toFixed(1);
+        const f = (item.f * mult).toFixed(1);
+        const c = (item.c * mult).toFixed(1);
+        const cal = Math.round(item.cal * mult);
+
+        showModal(`
+            <p class="label-xs">Macro Viewer</p>
+            <h2 style="margin:0;">${item.name}</h2>
+            <p class="label-xs mt-4">Current Portion: ${qty} ${unit}</p>
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                    <p class="label-xs" style="color:var(--indigo);">Protein</p>
+                    <p style="font-size:1.5rem; font-weight:900; margin:0;">${p}g</p>
+                </div>
+                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                    <p class="label-xs" style="color:var(--rose);">Calories</p>
+                    <p style="font-size:1.5rem; font-weight:900; margin:0;">${cal}</p>
+                </div>
+                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                    <p class="label-xs" style="color:var(--amber);">Fat</p>
+                    <p style="font-size:1rem; font-weight:900; margin:0;">${f}g</p>
+                </div>
+                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                    <p class="label-xs" style="color:var(--emerald);">Carbs</p>
+                    <p style="font-size:1rem; font-weight:900; margin:0;">${c}g</p>
+                </div>
+            </div>
+            <button onclick="closeModal()" class="btn-primary mt-4">Close</button>
+        `);
+    }
+
+    function confirmDelete(idx) {
+        showModal(`
+            <p class="label-xs">Confirm Removal</p>
+            <p>Are you sure you want to remove this item from your log?</p>
+            <div class="grid grid-cols-2 gap-4 mt-6">
+                <button onclick="closeModal()" class="btn-secondary">Cancel</button>
+                <button onclick="deleteItem(${idx})" class="btn-danger">Delete</button>
+            </div>
+        `);
+    }
+
+    function deleteItem(idx) {
+        storage[activeDate].splice(idx, 1);
+        saveAll();
+        loadDate(activeDate);
+        closeModal();
+    }
+
+    function openEditPopup(id = null, prefill = {}) {
+        const isNew = !id;
+        const item = id ? fullFoodDb[id] : prefill;
+
+        showModal(`
+            <p class="label-xs">${isNew ? 'New Custom Item' : 'Edit Item'}</p>
+            <input type="text" id="edit-name" placeholder="Item Name" class="full-input" value="${item.name || ''}">
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="label-xs">Protein (g)</label><input type="number" id="edit-p" class="full-input" value="${item.p || 0}"></div>
+                <div><label class="label-xs">Fat (g)</label><input type="number" id="edit-f" class="full-input" value="${item.f || 0}"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="label-xs">Carbs (g)</label><input type="number" id="edit-c" class="full-input" value="${item.c || 0}"></div>
+                <div><label class="label-xs">Calories</label><input type="number" id="edit-cal" class="full-input" value="${item.cal || 0}"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="label-xs">Unit</label>
+                    <select id="edit-unit" class="full-input">
+                        <option value="gm" ${item.unit === 'gm' ? 'selected' : ''}>gm</option>
+                        <option value="oz" ${item.unit === 'oz' ? 'selected' : ''}>oz</option>
+                        <option value="units" ${item.unit === 'units' ? 'selected' : ''}>units</option>
+                    </select>
+                </div>
+                <div><label class="label-xs">Serving Size</label><input type="number" id="edit-def" class="full-input" value="${item.def || 100}"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <button onclick="closeModal()" class="btn-secondary">Close</button>
+                <button onclick="saveEdit('${id || 'custom-' + Date.now()}')" class="btn-primary">Save Food</button>
+            </div>
+        `);
+    }
+
+    function saveEdit(id) {
+        const name = document.getElementById('edit-name').value;
+        if (!name) { alert("Please enter a name."); return; }
+
+        const unit = document.getElementById('edit-unit').value;
+        fullFoodDb[id] = {
+            name: name,
+            p: parseFloat(document.getElementById('edit-p').value) || 0,
+            f: parseFloat(document.getElementById('edit-f').value) || 0,
+            c: parseFloat(document.getElementById('edit-c').value) || 0,
+            cal: parseFloat(document.getElementById('edit-cal').value) || 0,
+            def: parseFloat(document.getElementById('edit-def').value) || 100,
+            unit: unit,
+            isUnit: unit === 'units'
+        };
+
+        saveAll();
+        initFoodSelect();
+        foodSel.value = id;
+        closeModal();
+    }
+
+    // --- SCANNER LOGIC ---
     let html5QrCode;
 
     async function onScanSuccess(decodedText, decodedResult) {
@@ -586,22 +742,15 @@
                 const c = nutrients.carbohydrates_100g || 0;
                 const cal = nutrients.energy_kcal_100g || 0;
                 
-                const id = 'scan-' + decodedText;
-                customDb[id] = {
+                openEditPopup('scan-' + decodedText, {
                     name: name,
                     p: parseFloat(p),
                     f: parseFloat(f),
                     c: parseFloat(c),
                     cal: parseFloat(cal),
                     def: 100,
-                    unit: 'gm',
-                    isUnit: false
-                };
-                
-                localStorage.setItem('custom_food_db', JSON.stringify(customDb));
-                initFoodSelect();
-                foodSel.value = id;
-                alert(`Found: ${name}`);
+                    unit: 'gm'
+                });
             } else {
                 alert("Product not found in Open Food Facts.");
             }
@@ -613,8 +762,6 @@
 
     document.getElementById('toggle-scan').onclick = () => {
         document.getElementById('scanner-container').classList.remove('hidden');
-        document.getElementById('manual-entry-form').classList.add('hidden');
-        
         html5QrCode = new Html5Qrcode("reader");
         const config = { fps: 10, qrbox: { width: 250, height: 250 } };
         html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
@@ -625,58 +772,20 @@
         document.getElementById('scanner-container').classList.add('hidden');
     };
 
-    document.getElementById('toggle-manual').onclick = () => {
-        document.getElementById('manual-entry-form').classList.toggle('hidden');
-        document.getElementById('scanner-container').classList.add('hidden');
-    };
-
-    document.getElementById('save-manual-btn').onclick = () => {
-        const name = document.getElementById('manual-name').value;
-        const p = parseFloat(document.getElementById('manual-p').value) || 0;
-        const f = parseFloat(document.getElementById('manual-f').value) || 0;
-        const c = parseFloat(document.getElementById('manual-c').value) || 0;
-        const cal = parseFloat(document.getElementById('manual-cal').value) || 0;
-        const unit = document.getElementById('manual-unit').value;
-        const def = parseFloat(document.getElementById('manual-def').value) || 100;
-        
-        if (!name) { alert("Please enter a name."); return; }
-        
-        const id = 'custom-' + Date.now();
-        customDb[id] = {
-            name: name,
-            p: p,
-            f: f,
-            c: c,
-            cal: cal,
-            def: def,
-            unit: unit,
-            isUnit: unit === 'units'
-        };
-        
-        localStorage.setItem('custom_food_db', JSON.stringify(customDb));
-        initFoodSelect();
-        foodSel.value = id;
-        document.getElementById('manual-entry-form').classList.add('hidden');
-        
-        // Reset form
-        document.getElementById('manual-name').value = '';
-        document.getElementById('manual-p').value = '';
-        document.getElementById('manual-f').value = '';
-        document.getElementById('manual-c').value = '';
-        document.getElementById('manual-cal').value = '';
-    };
+    document.getElementById('toggle-manual').onclick = () => openEditPopup();
 
     // Toggle Handlers
     dateIn.onchange = (e) => loadDate(e.target.value);
+
     document.getElementById('add-btn').onclick = () => {
         const id = foodSel.value; 
         if(!id) return;
         if(!storage[activeDate]) storage[activeDate] = [];
-        const combinedDb = { ...foodDb, ...customDb };
-        const item = combinedDb[id];
+        const item = fullFoodDb[id];
         storage[activeDate].push({ id, qty: item.def, unit: item.unit });
         saveAll(); loadDate(activeDate); foodSel.value = "";
     };
+
     document.getElementById('toggle-settings').onclick = () => { 
         document.getElementById('settings-content').classList.toggle('hidden'); 
         document.getElementById('settings-chevron').classList.toggle('rotate-180');
