@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Macro Tracker v4.0 - Scan or Add Foods</title>
+    <title>Macro Tracker v4.1 - Gray Edition</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root {
@@ -11,14 +11,15 @@
             --card-bg: #1e293b;
             --input-bg: #0f172a;
             --text-main: #f1f5f9;
-            --indigo: #6366f1;
-            --indigo-dark: #4f46e5;
-            --rose: #fb7185;
-            --amber: #fbbf24;
-            --emerald: #34d399;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
             --slate-700: #334155;
             --slate-800: #1e293b;
             --slate-900: #0f172a;
+            --accent: #94a3b8;
+            --danger: #7f1d1d;
+            --success: #059669;
         }
 
         body { 
@@ -60,8 +61,8 @@
         .hidden { display: none !important; }
 
         h1 { font-size: 1.5rem; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -0.05em; }
-        .sub-header { font-size: 10px; color: var(--indigo); font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; }
-        .label-xs { font-size: 10px; text-transform: uppercase; font-weight: 900; color: #64748b; }
+        .sub-header { font-size: 10px; color: var(--gray-400); font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; }
+        .label-xs { font-size: 10px; text-transform: uppercase; font-weight: 900; color: var(--gray-500); }
 
         input[type="date"], input[type="number"], input[type="text"], select {
             background-color: #1e293b;
@@ -104,7 +105,7 @@
         }
         
         .btn-danger {
-            background-color: #7f1d1d;
+            background-color: var(--danger);
             color: white;
             font-weight: 900;
             text-transform: uppercase;
@@ -117,7 +118,7 @@
         }
 
         .progress-card {
-            background-color: var(--indigo);
+            background-color: var(--gray-600);
             padding: 20px;
             border-radius: 2rem;
             border: none;
@@ -142,7 +143,7 @@
         }
 
         .remove-btn {
-            background-color: #7f1d1d;
+            background-color: var(--danger);
             color: white;
             border: 1px solid #991b1b;
             border-radius: 10px;
@@ -188,6 +189,15 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .checkbox-container input { cursor: pointer; }
     </style>
 </head>
 <body>
@@ -196,7 +206,7 @@
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h1>Macros</h1>
-                <p class="sub-header">v4.0 Enhanced</p>
+                <p class="sub-header">v4.1 Gray Edition</p>
             </div>
             <input type="date" id="app-date-selector">
         </div>
@@ -235,13 +245,13 @@
                         <option value="1.9">Extra Active</option>
                     </select>
                 </div>
-                <div style="background:rgba(99,102,241,0.1); padding:12px; border-radius:12px;" class="grid grid-cols-2 gap-4">
+                <div style="background:rgba(148,163,184,0.1); padding:12px; border-radius:12px;" class="grid grid-cols-2 gap-4">
                     <div style="text-align:center;">
-                        <label class="label-xs" style="color:#818cf8;">Protein Goal (g)</label>
+                        <label class="label-xs" style="color:var(--gray-400);">Protein Goal (g)</label>
                         <input type="number" id="target-p" style="background:transparent; border:none; color:white; font-size:1.25rem; font-weight:900; width:100%; text-align:center;" value="150">
                     </div>
                     <div style="text-align:center;">
-                        <label class="label-xs" style="color:#fb7185;">Calorie Goal</label>
+                        <label class="label-xs" style="color:var(--gray-400);">Calorie Goal</label>
                         <input type="number" id="target-cal" style="background:transparent; border:none; color:white; font-size:1.25rem; font-weight:900; width:100%; text-align:center;" value="2000">
                     </div>
                 </div>
@@ -265,15 +275,15 @@
                     </div>
                     <div>
                         <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Fat</span><span id="f-text">0/150</span></div>
-                        <div class="progress-bar"><div id="f-bar" class="progress-fill" style="width:0%; background:var(--amber);"></div></div>
+                        <div class="progress-bar"><div id="f-bar" class="progress-fill" style="width:0%; background:var(--gray-400);"></div></div>
                     </div>
                     <div>
                         <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Carbs</span><span id="c-text">0/30</span></div>
-                        <div class="progress-bar"><div id="c-bar" class="progress-fill" style="width:0%; background:var(--emerald);"></div></div>
+                        <div class="progress-bar"><div id="c-bar" class="progress-fill" style="width:0%; background:var(--gray-500);"></div></div>
                     </div>
                     <div>
                         <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Calories</span><span id="cal-text">0/1600</span></div>
-                        <div class="progress-bar"><div id="cal-bar" class="progress-fill" style="width:0%; background:var(--rose);"></div></div>
+                        <div class="progress-bar"><div id="cal-bar" class="progress-fill" style="width:0%; background:var(--gray-400);"></div></div>
                     </div>
                 </div>
             </button>
@@ -320,6 +330,7 @@
 
 <script>
     const initialFoodDb = {
+        'cafe-breve': { name: 'Cafe Breve', p: 8, f: 42, c: 12, cal: 450, def: 12, unit: 'oz', isUnit: false },
         'bake-believe-choc': { name: 'Bake Believe Choc Chips (1 Tbsp)', p: 6.67, f: 30, c: 60, cal: 400, def: 15, unit: 'gm', isUnit: false },
         'kirkland-beef-patty': { name: 'Kirkland Beef Patty', p: 25, f: 27.5, c: 0, cal: 313, def: 151, unit: 'gm', isUnit: false },
         'darigold-half-half': { name: 'Darigold Half and Half (2 Tbsp)', p: 3.33, f: 10, c: 3.33, cal: 133.33, def: 1.06, unit: 'oz', isUnit: false },
@@ -403,10 +414,10 @@
         };
         localStorage.setItem('macro_goals', JSON.stringify(goals));
 
-        // UI Feedback: Flash the label to show save happened
+        // UI Feedback
         const label = document.getElementById('settings-label');
         if (label) {
-            label.style.color = 'var(--emerald)';
+            label.style.color = 'var(--gray-400)';
             setTimeout(() => label.style.color = '#64748b', 300);
         }
     }
@@ -494,7 +505,7 @@
         const div = document.createElement('div');
         div.className = "food-row";
         const unitHtml = info.isUnit ? `<span class="label-xs">Units</span>` :
-            `<select class="unit-edit" style="background:transparent; border:none; color:var(--indigo); font-size:9px; font-weight:900;">
+            `<select class="unit-edit" style="background:transparent; border:none; color:var(--gray-400); font-size:9px; font-weight:900;">
                 <option value="gm" ${entry.unit === 'gm' ? 'selected' : ''}>gm</option>
                 <option value="oz" ${entry.unit === 'oz' ? 'selected' : ''}>oz</option>
             </select>`;
@@ -502,13 +513,13 @@
         div.innerHTML = `<div class="flex-grow" onclick="viewMacros('${entry.id}', ${entry.qty}, '${entry.unit}')">
             <p style="font-size:12px; font-weight:bold; margin:0;">${info.name}</p>
             <div class="flex items-center gap-2 mt-2">
-                <input type="number" value="${entry.qty}" class="qty-input" style="width:50px; background:black; border:1px solid #334155; color:var(--indigo); padding:4px; border-radius:6px;" onclick="event.stopPropagation()">
+                <input type="number" value="${entry.qty}" class="qty-input" style="width:50px; background:black; border:1px solid #334155; color:var(--gray-400); padding:4px; border-radius:6px;" onclick="event.stopPropagation()">
                 ${unitHtml}
             </div>
         </div>
         <div style="text-align:right;" onclick="viewMacros('${entry.id}', ${entry.qty}, '${entry.unit}')">
             <p style="font-size:14px; font-weight:900; margin:0;"><span class="row-p">0</span><span style="font-size:10px; color:#64748b; margin-left:2px;">g P</span></p>
-            <p style="font-size:10px; color:var(--rose); font-weight:bold; margin:0;"><span class="row-cal">0</span> cal</p>
+            <p style="font-size:10px; color:var(--gray-400); font-weight:bold; margin:0;"><span class="row-cal">0</span> cal</p>
         </div>
         <button class="remove-btn">✕</button>`;
 
@@ -592,9 +603,9 @@
                 });
             }
 
-            const pColor = (day.p < (tP * 0.8)) ? 'var(--rose)' : 'var(--indigo)';
-            const cColor = (day.c > tC) ? 'var(--rose)' : 'var(--emerald)';
-            const calColor = (day.cal > tCal) ? 'var(--rose)' : 'white';
+            const pColor = (day.p < (tP * 0.8)) ? 'var(--gray-500)' : 'white';
+            const cColor = (day.c > tC) ? 'var(--gray-400)' : 'var(--gray-500)';
+            const calColor = (day.cal > tCal) ? 'white' : 'var(--gray-400)';
             const label = i === 0 ? "Today" : d.toLocaleDateString('en-US', {weekday:'short', month:'numeric', day:'numeric'});
             
             html += `<tr style="background:${i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'}; border-bottom:1px solid rgba(51,65,85,0.2);">
@@ -622,23 +633,29 @@
         showModal(`
             <p class="label-xs">Macro Viewer</p>
             <h2 style="margin:0;">${item.name}</h2>
-            <p class="label-xs mt-4">Current Portion: ${qty} ${unit}</p>
-            <div class="grid grid-cols-2 gap-4 mt-4">
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--indigo);">Protein</p>
-                    <p style="font-size:1.5rem; font-weight:900; margin:0;">${p}g</p>
+            <div class="mt-4 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                        <p class="label-xs">Protein</p>
+                        <p style="font-size:1.5rem; font-weight:900; margin:0;">${p}g</p>
+                    </div>
+                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                        <p class="label-xs">Calories</p>
+                        <p style="font-size:1.5rem; font-weight:900; margin:0;">${cal}</p>
+                    </div>
+                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                        <p class="label-xs">Fat</p>
+                        <p style="font-size:1rem; font-weight:900; margin:0;">${f}g</p>
+                    </div>
+                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                        <p class="label-xs">Carbs</p>
+                        <p style="font-size:1rem; font-weight:900; margin:0;">${c}g</p>
+                    </div>
                 </div>
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--rose);">Calories</p>
-                    <p style="font-size:1.5rem; font-weight:900; margin:0;">${cal}</p>
-                </div>
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--amber);">Fat</p>
-                    <p style="font-size:1rem; font-weight:900; margin:0;">${f}g</p>
-                </div>
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--emerald);">Carbs</p>
-                    <p style="font-size:1rem; font-weight:900; margin:0;">${c}g</p>
+                <div style="border-top: 1px solid var(--slate-700); padding-top:12px;">
+                    <p class="label-xs">Base Info</p>
+                    <p style="font-size:12px;">Serving: ${item.def} ${item.unit} | isUnit: ${item.isUnit}</p>
+                    <p style="font-size:12px;">Macros per ${item.isUnit ? 'unit' : '100g'}: P:${item.p} F:${item.f} C:${item.c} Cal:${item.cal}</p>
                 </div>
             </div>
             <button onclick="closeModal()" class="btn-primary mt-4">Close</button>
@@ -663,9 +680,24 @@
         closeModal();
     }
 
+    function updateEditUnitSelection() {
+        const isUnit = document.getElementById('edit-is-unit').checked;
+        const unitSelect = document.getElementById('edit-unit');
+        if (isUnit) {
+            unitSelect.innerHTML = '<option value="units" selected>units</option>';
+        } else {
+            unitSelect.innerHTML = `
+                <option value="gm">gm</option>
+                <option value="oz">oz</option>
+            `;
+        }
+    }
+
     function openEditPopup(id = null, prefill = {}) {
         const isNew = !id;
         const item = id ? fullFoodDb[id] : prefill;
+        const unit = item.unit || 'gm';
+        const isUnit = item.isUnit || unit === 'units';
         
         showModal(`
             <p class="label-xs">${isNew ? 'New Custom Item' : 'Edit Item'}</p>
@@ -679,15 +711,24 @@
                 <div><label class="label-xs">Calories</label><input type="number" id="edit-cal" class="full-input" value="${item.cal || 0}"></div>
             </div>
             <div class="grid grid-cols-2 gap-4">
+                <div class="flex items-center">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="edit-is-unit" ${isUnit ? 'checked' : ''} onchange="updateEditUnitSelection()">
+                        <span class="label-xs">isUnit</span>
+                    </label>
+                </div>
                 <div>
                     <label class="label-xs">Unit</label>
                     <select id="edit-unit" class="full-input">
-                        <option value="gm" ${item.unit === 'gm' ? 'selected' : ''}>gm</option>
-                        <option value="oz" ${item.unit === 'oz' ? 'selected' : ''}>oz</option>
-                        <option value="units" ${item.unit === 'units' ? 'selected' : ''}>units</option>
+                        ${isUnit ? '<option value="units" selected>units</option>' :
+                        `<option value="gm" ${unit === 'gm' ? 'selected' : ''}>gm</option>
+                         <option value="oz" ${unit === 'oz' ? 'selected' : ''}>oz</option>`}
                     </select>
                 </div>
-                <div><label class="label-xs">Serving Size</label><input type="number" id="edit-def" class="full-input" value="${item.def || 100}"></div>
+            </div>
+            <div>
+                <label class="label-xs">Default Serving Size</label>
+                <input type="number" id="edit-def" class="full-input" value="${item.def || 100}">
             </div>
             <div class="grid grid-cols-2 gap-4 mt-4">
                 <button onclick="closeModal()" class="btn-secondary">Close</button>
@@ -701,6 +742,8 @@
         if (!name) { alert("Please enter a name."); return; }
         
         const unit = document.getElementById('edit-unit').value;
+        const isUnit = document.getElementById('edit-is-unit').checked;
+
         fullFoodDb[id] = {
             name: name,
             p: parseFloat(document.getElementById('edit-p').value) || 0,
@@ -709,7 +752,7 @@
             cal: parseFloat(document.getElementById('edit-cal').value) || 0,
             def: parseFloat(document.getElementById('edit-def').value) || 100,
             unit: unit,
-            isUnit: unit === 'units'
+            isUnit: isUnit
         };
         
         saveAll();
@@ -736,11 +779,10 @@
                 const nutrients = product.nutriments;
                 const name = product.product_name || "Unknown Item";
                 
-                // Open Food Facts nutrients are usually per 100g
                 const p = nutrients.proteins_100g || 0;
                 const f = nutrients.fat_100g || 0;
                 const c = nutrients.carbohydrates_100g || 0;
-                const cal = nutrients.energy_kcal_100g || 0;
+                const cal = nutrients['energy-kcal_100g'] || nutrients.energy_kcal_100g || 0;
                 
                 openEditPopup('scan-' + decodedText, {
                     name: name,
@@ -749,7 +791,8 @@
                     c: parseFloat(c),
                     cal: parseFloat(cal),
                     def: 100,
-                    unit: 'gm'
+                    unit: 'gm',
+                    isUnit: false
                 });
             } else {
                 alert("Product not found in Open Food Facts.");
