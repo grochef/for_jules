@@ -23,16 +23,17 @@ public class MainActivity extends AppCompatActivity {
         WebView myWebView = findViewById(R.id.webview);
         WebSettings webSettings = myWebView.getSettings();
 
-        // This is the magic that makes the app actually work
+        // Essential WebView settings for functionality and persistence
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setAllowFileAccess(true);
         webSettings.setAllowContentAccess(true);
+        webSettings.setMediaPlaybackRequiresUserGesture(false);
 
-        // Keep this to handle page loading within the app
+        // Standard WebViewClient to handle navigation within the app
         myWebView.setWebViewClient(new WebViewClient());
 
-        // This enables JavaScript dialogs and camera permissions
+        // WebChromeClient to handle camera permission requests from JavaScript
         myWebView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Request camera permission if not granted
+        // Request runtime camera permission if not already granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
         }
