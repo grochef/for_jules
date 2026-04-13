@@ -320,6 +320,7 @@
 
 <script>
     const initialFoodDb = {
+        'cafe-breve': { name: 'Cafe Breve', p: 6, f: 16, c: 4, cal: 180, def: 12, unit: 'oz', isUnit: false },
         'bake-believe-choc': { name: 'Bake Believe Choc Chips (1 Tbsp)', p: 6.67, f: 30, c: 60, cal: 400, def: 15, unit: 'gm', isUnit: false },
         'kirkland-beef-patty': { name: 'Kirkland Beef Patty', p: 25, f: 27.5, c: 0, cal: 313, def: 151, unit: 'gm', isUnit: false },
         'darigold-half-half': { name: 'Darigold Half and Half (2 Tbsp)', p: 3.33, f: 10, c: 3.33, cal: 133.33, def: 1.06, unit: 'oz', isUnit: false },
@@ -622,24 +623,27 @@
         showModal(`
             <p class="label-xs">Macro Viewer</p>
             <h2 style="margin:0;">${item.name}</h2>
-            <p class="label-xs mt-4">Current Portion: ${qty} ${unit}</p>
-            <div class="grid grid-cols-2 gap-4 mt-4">
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--indigo);">Protein</p>
-                    <p style="font-size:1.5rem; font-weight:900; margin:0;">${p}g</p>
+            <div class="mt-4 space-y-2">
+                <p class="label-xs">Serving Detail: ${item.def} ${item.unit} ${item.isUnit ? '(Single Item)' : ''}</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                        <p class="label-xs" style="color:var(--indigo);">Protein</p>
+                        <p style="font-size:1.5rem; font-weight:900; margin:0;">${p}g</p>
+                    </div>
+                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                        <p class="label-xs" style="color:var(--rose);">Calories</p>
+                        <p style="font-size:1.5rem; font-weight:900; margin:0;">${cal}</p>
+                    </div>
+                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                        <p class="label-xs" style="color:var(--amber);">Fat</p>
+                        <p style="font-size:1rem; font-weight:900; margin:0;">${f}g</p>
+                    </div>
+                    <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
+                        <p class="label-xs" style="color:var(--emerald);">Carbs</p>
+                        <p style="font-size:1rem; font-weight:900; margin:0;">${c}g</p>
+                    </div>
                 </div>
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--rose);">Calories</p>
-                    <p style="font-size:1.5rem; font-weight:900; margin:0;">${cal}</p>
-                </div>
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--amber);">Fat</p>
-                    <p style="font-size:1rem; font-weight:900; margin:0;">${f}g</p>
-                </div>
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--emerald);">Carbs</p>
-                    <p style="font-size:1rem; font-weight:900; margin:0;">${c}g</p>
-                </div>
+                <p class="label-xs mt-4">Current Portion: ${qty} ${unit}</p>
             </div>
             <button onclick="closeModal()" class="btn-primary mt-4">Close</button>
         `);
@@ -665,7 +669,8 @@
 
     function openEditPopup(id = null, prefill = {}) {
         const isNew = !id;
-        const item = id ? fullFoodDb[id] : prefill;
+        const item = id && fullFoodDb[id] ? fullFoodDb[id] : prefill;
+        const isUnit = item.isUnit || false;
         
         showModal(`
             <p class="label-xs">${isNew ? 'New Custom Item' : 'Edit Item'}</p>
@@ -684,32 +689,52 @@
                     <select id="edit-unit" class="full-input">
                         <option value="gm" ${item.unit === 'gm' ? 'selected' : ''}>gm</option>
                         <option value="oz" ${item.unit === 'oz' ? 'selected' : ''}>oz</option>
-                        <option value="units" ${item.unit === 'units' ? 'selected' : ''}>units</option>
+                        <option value="units" ${item.unit === 'units' ? 'selected' : ''} class="${isUnit ? '' : 'hidden'}">units</option>
                     </select>
                 </div>
                 <div><label class="label-xs">Serving Size</label><input type="number" id="edit-def" class="full-input" value="${item.def || 100}"></div>
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+                <input type="checkbox" id="edit-is-unit" ${isUnit ? 'checked' : ''} onchange="toggleEditUnit(this.checked)">
+                <label for="edit-is-unit" class="label-xs">isUnit (Treat as single item)</label>
             </div>
             <div class="grid grid-cols-2 gap-4 mt-4">
                 <button onclick="closeModal()" class="btn-secondary">Close</button>
                 <button onclick="saveEdit('${id || 'custom-' + Date.now()}')" class="btn-primary">Save Food</button>
             </div>
         `);
+        toggleEditUnit(isUnit);
+    }
+
+    function toggleEditUnit(isUnit) {
+        const unitSel = document.getElementById('edit-unit');
+        const unitOpt = unitSel.querySelector('option[value="units"]');
+        if (isUnit) {
+            unitOpt.classList.remove('hidden');
+            unitSel.value = 'units';
+            // Disable other options if desired, but hiding works
+        } else {
+            unitOpt.classList.add('hidden');
+            if (unitSel.value === 'units') unitSel.value = 'gm';
+        }
     }
 
     function saveEdit(id) {
         const name = document.getElementById('edit-name').value;
         if (!name) { alert("Please enter a name."); return; }
         
+        const isUnit = document.getElementById('edit-is-unit').checked;
         const unit = document.getElementById('edit-unit').value;
+
         fullFoodDb[id] = {
             name: name,
             p: parseFloat(document.getElementById('edit-p').value) || 0,
             f: parseFloat(document.getElementById('edit-f').value) || 0,
             c: parseFloat(document.getElementById('edit-c').value) || 0,
             cal: parseFloat(document.getElementById('edit-cal').value) || 0,
-            def: parseFloat(document.getElementById('edit-def').value) || 100,
+            def: parseFloat(document.getElementById('edit-def').value) || 1,
             unit: unit,
-            isUnit: unit === 'units'
+            isUnit: isUnit
         };
         
         saveAll();
@@ -737,10 +762,10 @@
                 const name = product.product_name || "Unknown Item";
                 
                 // Open Food Facts nutrients are usually per 100g
-                const p = nutrients.proteins_100g || 0;
-                const f = nutrients.fat_100g || 0;
-                const c = nutrients.carbohydrates_100g || 0;
-                const cal = nutrients.energy_kcal_100g || 0;
+                const p = nutrients.proteins_100g || nutrients.proteins || 0;
+                const f = nutrients.fat_100g || nutrients.fat || 0;
+                const c = nutrients.carbohydrates_100g || nutrients.carbohydrates || 0;
+                const cal = nutrients.energy_kcal_100g || nutrients['energy-kcal_100g'] || nutrients.energy_kcal || 0;
                 
                 openEditPopup('scan-' + decodedText, {
                     name: name,
@@ -749,10 +774,13 @@
                     c: parseFloat(c),
                     cal: parseFloat(cal),
                     def: 100,
-                    unit: 'gm'
+                    unit: 'gm',
+                    isUnit: false
                 });
             } else {
                 alert("Product not found in Open Food Facts.");
+                // Still allow adding it manually
+                openEditPopup('scan-' + decodedText, { name: "Scanned Item (" + decodedText + ")" });
             }
         } catch (error) {
             console.error("Error fetching food data:", error);
