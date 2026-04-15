@@ -18,11 +18,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends AppCompatActivity {
 
     private WebView myWebView;
     private ValueCallback<Uri[]> filePathCallback;
+    private String pendingJsonData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setAllowFileAccess(true);
         webSettings.setAllowContentAccess(true);
         webSettings.setDatabaseEnabled(true);
+        webSettings.setAllowFileAccessFromFileURLs(true);
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
 
         // --- NEW: REGISTER THE JAVASCRIPT BRIDGE ---
         myWebView.addJavascriptInterface(new WebAppInterface(this), "AndroidBridge");
@@ -104,7 +109,39 @@ public class MainActivity extends AppCompatActivity {
             Intent shareIntent = Intent.createChooser(sendIntent, "Export Workout CSV");
             mContext.startActivity(shareIntent);
         }
+
+        @JavascriptInterface
+        public void saveWorkoutJSON(String jsonData, String fileName) {
+            mContext.runOnUiThread(() -> {
+                mContext.pendingJsonData = jsonData;
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/json");
+                intent.putExtra(Intent.EXTRA_TITLE, fileName);
+                mContext.saveFileLauncher.launch(intent);
+            });
+        }
     }
+
+    private final ActivityResultLauncher<Intent> saveFileLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    if (uri != null && pendingJsonData != null) {
+                        try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
+                            if (outputStream != null) {
+                                outputStream.write(pendingJsonData.getBytes(StandardCharsets.UTF_8));
+                                outputStream.flush();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                pendingJsonData = null;
+            }
+    );
 
     private final ActivityResultLauncher<Intent> filePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
