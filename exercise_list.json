@@ -1,0 +1,30 @@
+{
+  "workout_types": ["Full Body", "Back and Biceps", "Chest and Triceps"],
+  "exercises": [
+    { "id": "1.0", "name": "Push-Ups", "groups": ["Back and Biceps", "Chest and Triceps", "Full Body"] },
+    { "id": "1.1", "name": "Pull-Ups", "groups": ["Back and Biceps", "Full Body"] },
+    { "id": "1.2", "name": "Row Seated (Narrow)", "groups": ["Back and Biceps", "Full Body"] },
+    { "id": "1.3", "name": "Row Seated (Wide Straps)", "groups": ["Back and Biceps", "Full Body"] },
+    { "id": "1.4", "name": "Lat Pulldown (HS)", "groups": ["Back and Biceps", "Full Body"] },
+    { "id": "1.5", "name": "DB Hammer Curls", "groups": ["Back and Biceps", "Full Body"] },
+    { "id": "1.6", "name": "DB Cross-Body Curls", "groups": ["Back and Biceps", "Full Body"] },
+    { "id": "1.7", "name": "Seated Hammer Curls", "groups": ["Back and Biceps", "Full Body"] },
+    { "id": "1.8", "name": "Cable Curls", "groups": ["Back and Biceps", "Full Body"] },
+    { "id": "1.9", "name": "Cable Cross-Body Curls", "groups": ["Back and Biceps", "Full Body"] },
+    { "id": "2.1", "name": "Bench Press", "groups": ["Chest and Triceps", "Full Body"] },
+    { "id": "2.2", "name": "Chest Press Seated (HS)", "groups": ["Chest and Triceps", "Full Body"] },
+    { "id": "2.3", "name": "Cable Chest Press", "groups": ["Chest and Triceps", "Full Body"] },
+    { "id": "2.4", "name": "Military Press (Standing)", "groups": ["Chest and Triceps", "Full Body"] },
+    { "id": "2.5", "name": "DB Press Seated", "groups": ["Chest and Triceps", "Full Body"] },
+    { "id": "2.6", "name": "DB Chest Press", "groups": ["Chest and Triceps", "Full Body"] },
+    { "id": "2.7", "name": "DB Center Press", "groups": ["Chest and Triceps", "Full Body"] },
+    { "id": "2.8", "name": "Triceps Ext Standing (Straps)", "groups": ["Chest and Triceps", "Full Body"] },
+    { "id": "2.9", "name": "Triceps Ext Standing (Short Bar)", "groups": ["Chest and Triceps", "Full Body"] },
+    { "id": "2.10", "name": "Lat Pull Straight Arm (Straps)", "groups": ["Chest and Triceps", "Full Body"] },
+    { "id": "3.1", "name": "Cable Abdominal Crunches", "groups": ["Back and Biceps", "Chest and Triceps", "Full Body"] },
+    { "id": "3.2", "name": "Hip Thrust (HS)", "groups": ["Back and Biceps", "Chest and Triceps", "Full Body"] },
+    { "id": "3.3", "name": "Hack Squat (HS)", "groups": ["Back and Biceps", "Chest and Triceps", "Full Body"] },
+    { "id": "3.4", "name": "Leg Press (HS)", "groups": ["Back and Biceps", "Chest and Triceps", "Full Body"] },
+    { "id": "3.5", "name": "Leg Press Cybex", "groups": ["Back and Biceps", "Chest and Triceps", "Full Body"] }
+  ]
+}

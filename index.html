@@ -3,798 +3,530 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Macro Tracker v4.0 - Scan or Add Foods</title>
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <title>Workout Tracker v8.6 - Precision Pro</title>
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --input-bg: #0f172a;
-            --text-main: #f1f5f9;
-            --indigo: #6366f1;
-            --indigo-dark: #4f46e5;
-            --rose: #fb7185;
-            --amber: #fbbf24;
-            --emerald: #34d399;
-            --slate-700: #334155;
-            --slate-800: #1e293b;
-            --slate-900: #0f172a;
+            --bg-dark: #111827;
+            --card-bg: #1f2937;
+            --input-bg: #374151;
+            --border-color: #4b5563;
+            --text-main: #e5e7eb;
+            --text-muted: #9ca3af;
+            --blue: #2563eb;
+            --green: #10b981;
+            --red: #ef4444;
+            --purple: #9333ea;
+            --orange: #ea580c;
+            --gold: #facc15;
         }
 
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background-color: var(--bg-dark); 
             color: var(--text-main); 
-            margin: 0;
-            padding: calc(20px + env(safe-area-inset-top)) 16px 16px 16px;
-            display: flex;
-            justify-content: center;
+            margin: 0; 
+            padding: 1rem; 
+            padding-bottom: calc(6rem + env(safe-area-inset-bottom)); 
             min-height: 100vh;
             box-sizing: border-box;
         }
 
-        .app-container {
-            width: 100%;
-            max-width: 448px;
-            background-color: #020617;
-            border-radius: 2.5rem;
-            padding: 24px;
-            border: 1px solid #1e293b;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            height: fit-content;
-        }
+        .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; }
+        .card { background-color: var(--card-bg); padding: 1rem; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); border: 1px solid #374151; }
+        
+        .btn { border-radius: 0.5rem; border: none; padding: 0.6rem 1rem; font-weight: bold; color: white; cursor: pointer; transition: all 0.2s; text-transform: uppercase; font-size: 0.75rem; }
+        .btn:active { transform: scale(0.95); }
+        .bg-blue { background-color: var(--blue); }
+        .bg-purple { background-color: var(--purple); }
+        .bg-orange { background-color: var(--orange); }
+        .bg-green { background-color: var(--green); }
+        .bg-red { background-color: var(--red); }
+        .bg-slate { background-color: #4b5563; }
 
+        #restTimerContainer { 
+            position: fixed; 
+            bottom: calc(1rem + env(safe-area-inset-bottom)); 
+            right: 1rem; 
+            z-index: 100; 
+            background: #1f2937; 
+            border: 2px solid var(--border-color); 
+            border-radius: 1rem; 
+            width: 130px; 
+            padding: 10px; 
+            text-align: center; 
+        }
+        
+        #volumeSummary { 
+            position: fixed; 
+            bottom: calc(1rem + env(safe-area-inset-bottom)); 
+            left: 1rem; 
+            z-index: 100; 
+            background: #1f2937; 
+            border: 2px solid var(--green); 
+            padding: 10px; 
+            border-radius: 1rem; 
+            width: 110px; 
+            text-align: center; 
+        }
+        
         .flex { display: flex; }
         .justify-between { justify-content: space-between; }
         .items-center { align-items: center; }
-        .flex-grow { flex-grow: 1; }
         .grid { display: grid; }
-        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .gap-4 { gap: 16px; }
-        .gap-2 { gap: 8px; }
-        .space-y-4 > * + * { margin-top: 16px; }
-        .space-y-3 > * + * { margin-top: 12px; }
-        .mb-6 { margin-bottom: 24px; }
-        .mb-8 { margin-bottom: 32px; }
-        .mt-4 { margin-top: 16px; }
-        .hidden { display: none !important; }
+        .grid-cols-2 { grid-template-columns: 1fr 1fr; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .w-full { width: 100%; }
+        .hidden { display: none; }
+        .text-center { text-align: center; }
 
-        h1 { font-size: 1.5rem; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -0.05em; }
-        .sub-header { font-size: 10px; color: var(--indigo); font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; }
-        .label-xs { font-size: 10px; text-transform: uppercase; font-weight: 900; color: #64748b; }
-
-        input[type="date"], input[type="number"], input[type="text"], select {
-            background-color: #1e293b;
+        input, select, textarea {
+            background-color: var(--input-bg);
             color: white;
-            border: 1px solid #334155;
-            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
             padding: 8px;
+            border-radius: 6px;
             outline: none;
-            font-size: 16px; 
-        }
-
-        #food-select { font-size: 13px !important; padding: 12px !important; }
-        .full-input { width: 100%; box-sizing: border-box; padding: 12px !important; }
-
-        .btn-primary {
-            background-color: white;
-            color: #0f172a;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 16px;
-            border-radius: 1rem;
-            border: none;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        .btn-secondary {
-            background-color: var(--slate-800);
-            color: white;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 12px;
-            border-radius: 1rem;
-            border: 1px solid var(--slate-700);
-            width: 100%;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .btn-danger {
-            background-color: #7f1d1d;
-            color: white;
-            font-weight: 900;
-            text-transform: uppercase;
-            padding: 12px;
-            border-radius: 1rem;
-            border: 1px solid #991b1b;
-            width: 100%;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .progress-card {
-            background-color: var(--indigo);
-            padding: 20px;
-            border-radius: 2rem;
-            border: none;
-            text-align: left;
-            width: 100%;
-            color: white;
-            cursor: pointer;
-        }
-
-        .progress-bar { height: 10px; border-radius: 9999px; background-color: rgba(15, 23, 42, 0.5); overflow: hidden; }
-        .progress-fill { height: 100%; transition: width 0.5s; background-color: white; }
-
-        .food-row {
-            background-color: rgba(30, 41, 59, 0.4);
-            border: 1px solid #1e293b;
-            padding: 16px;
-            border-radius: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            cursor: pointer;
-        }
-
-        .remove-btn {
-            background-color: #7f1d1d;
-            color: white;
-            border: 1px solid #991b1b;
-            border-radius: 10px;
-            width: 36px;
-            height: 36px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .rotate-180 { transform: rotate(180deg); transition: transform 0.2s; }
-
-        #reader {
-            width: 100%;
-            border-radius: 1rem;
-            overflow: hidden;
-            border: 1px solid var(--slate-700);
-            margin-bottom: 16px;
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            padding: 16px;
             box-sizing: border-box;
+            font-size: 16px;
         }
-        .modal-content {
-            background: var(--slate-800);
-            padding: 24px;
-            border-radius: 2rem;
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid var(--slate-700);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            max-height: 90vh;
-            overflow-y: auto;
+
+        .pb-glow { color: var(--gold); text-shadow: 0 0 8px rgba(250, 204, 21, 0.6); font-weight: 800; }
+        .memory-hint { font-size: 10px; color: var(--blue); font-weight: bold; background: rgba(37, 99, 235, 0.1); padding: 4px 8px; border-radius: 4px; display: inline-block; }
+        .target-hint { font-size: 10px; color: var(--gold); font-weight: bold; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        td, th { padding: 8px; border-bottom: 1px solid #374151; }
+
+        #autoSaveStatus { position: fixed; top: 0.5rem; right: 1rem; font-size: 9px; color: #4b5563; }
+        #favoritesPanel.collapsed { display: none; }
+        
+        .del-set-btn { background: transparent; border: none; color: var(--red); cursor: pointer; font-size: 14px; padding: 5px; opacity: 0.6; }
+
+        #exportAreaContainer { 
+            margin-top: 20px; 
+            padding: 15px; 
+            background: rgba(0,0,0,0.4); 
+            border: 1px dashed var(--blue); 
+            border-radius: 12px; 
+        }
+        #csvOutputText { 
+            width: 100%; 
+            height: 150px; 
+            font-family: monospace; 
+            font-size: 10px; 
+            background: #000; 
+            color: var(--green); 
+            border: 1px solid #334155; 
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <div class="flex justify-between items-center mb-6">
+    <div id="autoSaveStatus">Last saved: Never</div>
+
+    <div id="restTimerContainer">
+        <div id="timerDisplay" style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">00:00</div>
+        <div class="grid grid-cols-2 gap-2">
+            <button onclick="startTimer(60)" class="btn" style="background:#4b5563; padding: 4px;">60s</button>
+            <button onclick="stopTimer()" class="btn bg-red" style="padding: 4px;">Clr</button>
+        </div>
+    </div>
+
+    <div id="volumeSummary">
+        <div style="font-size: 8px; text-transform: uppercase; color: var(--text-muted);">Total Tonnage</div>
+        <div id="totalVolumeDisplay" style="font-size: 16px; font-weight: bold; color: var(--green);">0 lbs</div>
+    </div>
+
+    <div class="container card">
+        <h1 class="text-center" style="margin: 0;">Workout Tracker <span style="color: var(--gold);">v8.6</span></h1>
+        
+        <div style="background: rgba(55, 65, 81, 0.5); border: 1px solid var(--border-color); border-radius: 12px;">
+            <button id="toggleFavBtn" style="width:100%; background:transparent; border:none; padding:12px; color:white; display:flex; justify-content:space-between; cursor:pointer; font-weight:bold; font-size:14px;">
+                <span>⭐ Manage Favorites</span>
+                <span id="favChevron">▼</span>
+            </button>
+            <div id="favoritesPanel" class="collapsed" style="padding:15px; border-top:1px solid var(--border-color);">
+                <div id="favoritesGrid" class="grid" style="grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px;"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
             <div>
-                <h1>Macros</h1>
-                <p class="sub-header">v4.0 Enhanced</p>
+                <label style="font-size: 9px; text-transform: uppercase; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 4px;">Date</label>
+                <input type="date" id="workoutDateInput" class="w-full">
             </div>
-            <input type="date" id="app-date-selector">
-        </div>
-
-        <div class="mb-6">
-            <button id="toggle-settings" style="width:100%; background:#1e293b; border:1px solid #334155; color:white; padding:12px; border-radius:12px; display:flex; justify-content:space-between;">
-                <span id="settings-label" class="label-xs">Body Stats & Goals</span>
-                <span id="settings-chevron">▼</span>
-            </button>
-            <div id="settings-content" class="hidden mt-4 space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="label-xs">Weight (lbs)</label><input type="number" id="input-weight" class="full-input" value="150"></div>
-                    <div><label class="label-xs">Age (yrs)</label><input type="number" id="input-age" class="full-input" value="66"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="label-xs">Height (Ft)</label><input type="number" id="input-ft" class="full-input" value="5"></div>
-                    <div><label class="label-xs">Height (In)</label><input type="number" id="input-in" class="full-input" value="10"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="label-xs">Gender</label>
-                        <select id="input-gender" class="full-input">
-                            <option value="male" selected>Male</option>
-                            <option value="female">Female</option>
-                        </select>
-                    </div>
-                    <div><label class="label-xs">Protein g/lb</label><input type="number" id="input-gpl" class="full-input" value="1" step="0.1"></div>
-                </div>
-                <div>
-                    <label class="label-xs">Activity Level</label>
-                    <select id="input-activity" class="full-input">
-                        <option value="1.2">Sedentary</option>
-                        <option value="1.375">Lightly Active</option>
-                        <option value="1.55" selected>Moderately Active</option>
-                        <option value="1.725">Very Active</option>
-                        <option value="1.9">Extra Active</option>
-                    </select>
-                </div>
-                <div style="background:rgba(99,102,241,0.1); padding:12px; border-radius:12px;" class="grid grid-cols-2 gap-4">
-                    <div style="text-align:center;">
-                        <label class="label-xs" style="color:#818cf8;">Protein Goal (g)</label>
-                        <input type="number" id="target-p" style="background:transparent; border:none; color:white; font-size:1.25rem; font-weight:900; width:100%; text-align:center;" value="150">
-                    </div>
-                    <div style="text-align:center;">
-                        <label class="label-xs" style="color:#fb7185;">Calorie Goal</label>
-                        <input type="number" id="target-cal" style="background:transparent; border:none; color:white; font-size:1.25rem; font-weight:900; width:100%; text-align:center;" value="2000">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="label-xs">Fat Goal (g)</label><input type="number" id="target-f" class="full-input" value="150"></div>
-                    <div><label class="label-xs">Carb Goal (g)</label><input type="number" id="target-c" class="full-input" value="30"></div>
-                </div>
+            <div>
+                <label style="font-size: 9px; text-transform: uppercase; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 4px;">Split</label>
+                <select id="workoutTypeSelect" class="w-full">
+                    <option>Full Body</option>
+                    <option>Back and Biceps</option>
+                    <option>Chest and Triceps</option>
+                </select>
             </div>
         </div>
 
-        <div class="mb-6">
-            <button id="toggle-progress" class="progress-card">
-                <div class="flex justify-between items-center">
-                    <span class="label-xs" style="color:white;">Live Progress</span>
-                    <span id="smart-summary" style="font-weight:900;">0g P / 0 Cal</span>
-                </div>
-                <div id="progress-content" class="hidden mt-4 space-y-4" style="border-top: 1px solid rgba(255,255,255,0.2); padding-top:16px;">
-                    <div>
-                        <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Protein</span><span id="p-text">0/150</span></div>
-                        <div class="progress-bar"><div id="p-bar" class="progress-fill" style="width:0%"></div></div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Fat</span><span id="f-text">0/150</span></div>
-                        <div class="progress-bar"><div id="f-bar" class="progress-fill" style="width:0%; background:var(--amber);"></div></div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Carbs</span><span id="c-text">0/30</span></div>
-                        <div class="progress-bar"><div id="c-bar" class="progress-fill" style="width:0%; background:var(--emerald);"></div></div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between label-xs" style="color:white; margin-bottom:4px;"><span>Calories</span><span id="cal-text">0/1600</span></div>
-                        <div class="progress-bar"><div id="cal-bar" class="progress-fill" style="width:0%; background:var(--rose);"></div></div>
-                    </div>
-                </div>
-            </button>
+        <div id="exercisesContainer" class="space-y-4"></div>
+
+        <div class="flex" style="flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+            <button id="addExerciseBtn" class="btn bg-blue" style="flex-grow: 1;">+ Add Exercise</button>
+            <button id="sortExercisesBtn" class="btn bg-slate" style="flex-grow: 1;">⇅ Sort Order</button>
+            <div class="w-full grid grid-cols-2 gap-2">
+                <button id="loadLastBtn" class="btn bg-purple">↺ Load Last</button>
+                <button id="saveCsvBtn" class="btn bg-green">💾 SAVE & SHARE</button>
+            </div>
+            <button id="importCsvBtn" class="btn bg-orange" style="width: 100%;">📂 Import CSV</button>
+            <input type="file" id="csvFileInput" class="hidden">
         </div>
 
-        <div class="mb-6">
-            <button id="toggle-history" style="width:100%; background:#1e293b; border:1px solid #334155; color:white; padding:12px; border-radius:12px; display:flex; justify-content:space-between;">
-                <span class="label-xs">7-Day Trends</span>
-                <span id="history-chevron">▼</span>
-            </button>
-            <div id="history-content" class="hidden mt-4">
-                <div id="weekly-table-container" style="background:rgba(30,41,59,0.4); border-radius:1rem; border:1px solid #1e293b; overflow:hidden;"></div>
+        <div id="exportAreaContainer" class="hidden">
+            <div class="flex justify-between items-center">
+                <span style="font-size: 10px; font-weight: bold; color: var(--blue);">CSV BACKUP (SHARE NOT SUPPORTED)</span>
+                <button onclick="document.getElementById('exportAreaContainer').classList.add('hidden')" style="background:transparent; border:none; color:var(--text-muted);">✕</button>
+            </div>
+            <textarea id="csvOutputText" readonly onclick="this.select()"></textarea>
+            <button class="btn bg-blue w-full" style="margin-top: 10px;" onclick="const t = document.getElementById('csvOutputText'); t.select(); document.execCommand('copy');">Copy to Clipboard</button>
+        </div>
+
+        <div style="margin-top: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid #374151;">
+            <h2 style="font-size: 12px; text-align: center; color: var(--green); margin-top: 0; text-transform: uppercase;">Recent Sessions</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
             </div>
         </div>
-
-        <div class="mb-6 space-y-3">
-            <div class="grid grid-cols-2 gap-4">
-                <button id="toggle-manual" class="btn-secondary">Manual Entry</button>
-                <button id="toggle-scan" class="btn-secondary">Scan Barcode</button>
-            </div>
-
-            <div id="scanner-container" class="hidden">
-                <div id="reader"></div>
-                <button id="close-scan-btn" class="btn-secondary">Close Scanner</button>
-            </div>
-        </div>
-
-        <div class="space-y-3 mb-8">
-            <select id="food-select" class="full-input" style="padding:16px !important; border-radius:1rem;">
-                <option value="" disabled selected>Select Food to Add...</option>
-            </select>
-            <button id="add-btn" class="btn-primary">Add to Log</button>
-        </div>
-
-        <div id="food-log" class="space-y-3 mb-8"></div>
+        
+        <p style="text-align:center; font-size: 10px; color: var(--text-muted);">v8.6 Precision Pro</p>
     </div>
 
-    <!-- Modal System -->
-    <div id="modal-overlay" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div id="modal-body" class="space-y-4"></div>
-        </div>
-    </div>
-
-<script>
-    const initialFoodDb = {
-        'bake-believe-choc': { name: 'Bake Believe Choc Chips (1 Tbsp)', p: 6.67, f: 30, c: 60, cal: 400, def: 15, unit: 'gm', isUnit: false },
-        'kirkland-beef-patty': { name: 'Kirkland Beef Patty', p: 25, f: 27.5, c: 0, cal: 313, def: 151, unit: 'gm', isUnit: false },
-        'darigold-half-half': { name: 'Darigold Half and Half (2 Tbsp)', p: 3.33, f: 10, c: 3.33, cal: 133.33, def: 1.06, unit: 'oz', isUnit: false },
-        'chomps-beef': { name: 'Beef Stick Chomps (1 Stick)', p: 31.25, f: 21.87, c: 0, cal: 312.5, def: 32, unit: 'gm', isUnit: false },
-        'tillamook-square': { name: 'Tillamook Cheddar Square', p: 23.81, f: 33.33, c: 4.76, cal: 428.57, def: 21, unit: 'gm', isUnit: false },
-        'ribeye': { name: 'Ribeye Steak', p: 32.5, f: 32.5, c: 0, cal: 349, def: 6, unit: 'oz', isUnit: false },
-        'chuck-roast': { name: 'Beef Chuck Roast', p: 31.25, f: 21, c: 0, cal: 265, def: 6, unit: 'oz', isUnit: false },
-        'egg-medium': { name: 'Egg - One Medium', p: 6, f: 5.5, c: 0.65, cal: 77, def: 1, unit: 'units', isUnit: true },
-        'egg-large': { name: 'Egg - One Large', p: 6.3, f: 6.5, c: 0.8, cal: 87, def: 1, unit: 'units', isUnit: true },
-        'hamburger-80': { name: '80% Lean Hamburger', p: 25, f: 27.5, c: 0, cal: 282, def: 6, unit: 'oz', isUnit: false },
-        'hamburger-90': { name: '90% Lean Hamburger', p: 30, f: 15, c: 0, cal: 203, def: 6, unit: 'oz', isUnit: false },
-        'pork-roast': { name: 'Pork Shoulder Roast', p: 32.5, f: 25, c: 0, cal: 248, def: 6, unit: 'oz', isUnit: false },
-        'chicken-breast': { name: 'Chicken Breast', p: 38.75, f: 5, c: 0, cal: 175, def: 6, unit: 'oz', isUnit: false },
-        'chicken-thigh': { name: 'Chicken Thigh', p: 32.5, f: 15, c: 0, cal: 218, def: 6, unit: 'oz', isUnit: false },
-        'peanut-butter': { name: 'Kirkland Peanut Butter Organic (1 Tbsp)', p: 24.5, f: 52.5, c: 21.87, cal: 682, def: 16, unit: 'gm', isUnit: false },
-        'cheddar-cheese': { name: 'Cheese, Cheddar', p: 24, f: 34, c: 2, cal: 416, def: 2, unit: 'oz', isUnit: false },
-        'sour-cream': { name: 'Darigold Sour Cream (2 Tbsp)', p: 3, f: 20, c: 3.75, cal: 200, def: 30, unit: 'gm', isUnit: false },
-        'kirkland-a2-milk': { name: 'Kirkland A2 Milk (1 cup)', p: 3.53, f: 3.97, c: 4.85, cal: 70.5, def: 8, unit: 'oz', isUnit: false },
-        'lucerne-greek': { name: 'Yogurt Lucerne Greek (2/3 cup)', p: 8, f: 4, c: 4.7, cal: 88, def: 170, unit: 'gm', isUnit: false },
-        'wild-planet-sardines': { name: 'Wild Planet Sardines', p: 20.93, f: 12.79, c: 0, cal: 197.67, def: 1, unit: 'units', isUnit: true },
-        'kefir': { name: '15% Milkfat Kefir', p: 3.5, f: 15, c: 4.5, cal: 174, def: 4, unit: 'oz', isUnit: false },
-        'kirkland-peanuts': { name: 'Kirkland Peanuts (1/4 cup)', p: 26.67, f: 50, c: 20, cal: 566.67, def: 30, unit: 'gm', isUnit: false },
-        'levels-whey-dc': { name: 'Whey Levels - Dbl Choc (1 Scoop)', p: 75, f: 7.8, c: 12.5, cal: 412, def: 32, unit: 'gm', isUnit: false },
-        'ncost-whey-choc-pb': { name: 'Whey Nutricost - Choc PB (1 Scoop)', p: 65.8, f: 7.89, c: 10.53, cal: 368.42, def: 38, unit: 'gm', isUnit: false },
-        'ncost-whey-plain': { name: 'Whey Nutricost - Plain (1 Scoop)', p: 75.76, f: 6.06, c: 3.03, cal: 363.64, def: 33, unit: 'gm', isUnit: false },
-        'rx-bar-sea-salt': { name: 'RX Bar - Sea Salt', p: 23, f: 14, c: 44, cal: 414, def: 1, unit: 'units', isUnit: true },
-        'rx-bar-pb-choc': { name: 'RX Bar - PB Choc', p: 23, f: 14, c: 44, cal: 414, def: 1, unit: 'units', isUnit: true },
-        'kirkland-org-creamy-pb': { name: 'Kirkland Peanut Butter - Creamy, Organic (2 Tbsp)', p: 25.04, f: 46.95, c: 21.91, cal: 563.4, def: 32, unit: 'gm', isUnit: false },
-        'Tart-montmorecy-cherry': { name: 'Kirkland Tart Montmorency Cherries (1/3 cup)', p: 0, f: 0, c: 77.5, cal: 325, def: 40, unit: 'gm', isUnit: false },
-        'mct-verdana': { name: 'MCT Oil Verdana (1 Tbsp)', p: 0, f: 99.96, c: 0, cal: 928.2, def: 14, unit: 'gm', isUnit: false },
-        'bacon-hemplers': { name: 'Bacon Hempler’s – 2 slices', p: 42.84, f: 23.8, c: 0, cal: 428.4, def: 21, unit: 'gm', isUnit: false },
-        'kirkland-beef-sticks': { name: 'Kirkland Beef Sticks (1 Stick)', p: 31.3, f: 21.91, c: 3.13, cal: 313, def: 32, unit: 'gm', isUnit: true },
-        'nutrail-nut-granola': { name: 'Granola Nutrail Blueberry (1/3 cup)', p: 13.32, f: 49.95, c: 29.97, cal: 532.8, def: 30, unit: 'gm', isUnit: false },
-        'autumngold-nut-granola': { name: 'Granola Autumn Gold (1/4 cup)', p: 14.8, f: 48.1, c: 37, cal: 629, def: 27, unit: 'gm', isUnit: false },
-        'rx-bar-pb': { name: 'RX Bar - Peanut Butter', p: 23, f: 14, c: 44, cal: 414, def: 1, unit: 'units', isUnit: true }
-    };
-
-    // Seed LocalStorage with hardcoded list if empty
-    if (!localStorage.getItem('full_food_db')) {
-        localStorage.setItem('full_food_db', JSON.stringify(initialFoodDb));
-    }
-
-    let storage = JSON.parse(localStorage.getItem('macros_offline')) || {};
-    let fullFoodDb = JSON.parse(localStorage.getItem('full_food_db')) || initialFoodDb;
-    let activeDate = new Date().toLocaleDateString('en-CA'); 
-
-    const dateIn = document.getElementById('app-date-selector');
-    const foodSel = document.getElementById('food-select');
-    const foodLogUI = document.getElementById('food-log');
-    const modalOverlay = document.getElementById('modal-overlay');
-    const modalBody = document.getElementById('modal-body');
-
-    // --- MODAL SYSTEM ---
-    function showModal(html) {
-        modalBody.innerHTML = html;
-        modalOverlay.classList.remove('hidden');
-    }
-
-    function closeModal() {
-        modalOverlay.classList.add('hidden');
-        modalBody.innerHTML = '';
-    }
-
-    // --- PERSISTENCE LOGIC ---
-    function saveAll() { 
-        localStorage.setItem('macros_offline', JSON.stringify(storage)); 
-        localStorage.setItem('full_food_db', JSON.stringify(fullFoodDb));
-        
-        const goals = {
-            weight: document.getElementById('input-weight').value,
-            age: document.getElementById('input-age').value,
-            ft: document.getElementById('input-ft').value,
-            in: document.getElementById('input-in').value,
-            gender: document.getElementById('input-gender').value,
-            gpl: document.getElementById('input-gpl').value,
-            activity: document.getElementById('input-activity').value,
-            tp: document.getElementById('target-p').value,
-            tf: document.getElementById('target-f').value,
-            tc: document.getElementById('target-c').value,
-            tcal: document.getElementById('target-cal').value
+    <script>
+        const ALL_EXERCISES = ['1.0-Push-Ups', '1.1-Pull-Ups', '1.2-Row Seated (Narrow)', '1.3-Row Seated (Wide Straps)', '1.4-Lat Pulldown (HS)', '1.5-DB Hammer Curls', '1.6-DB Cross-Body Curls', '1.7-Seated Hammer Curls', '1.8-Cable Curls', '1.9-Cable Cross-Body Curls', '3.1-Cable Abdominal Crunches', '3.2-Hip Thrust (HS)', '3.3-Hack Squat (HS)', '3.4-Leg Press (HS)', '3.5-Leg Press Cybex', '2.1-Bench Press', '2.2-Chest Press Seated (HS)', '2.3-Cable Chest Press', '2.4-Military Press (Standing)', '2.5-DB Press Seated', '2.6-DB Chest Press', '2.7-DB Center Press', '2.8-Triceps Ext Standing (Straps)', '2.9-Triceps Ext Standing (Short Bar)', '2.10-Lat Pull Straight Arm (Straps)'];
+        const EXERCISE_GROUPS = { 
+            'Back and Biceps': ['1.0-Push-Ups', '1.1-Pull-Ups', '1.2-Row Seated (Narrow)', '1.3-Row Seated (Wide Straps)', '1.4-Lat Pulldown (HS)', '1.5-DB Hammer Curls', '1.6-DB Cross-Body Curls', '1.7-Seated Hammer Curls', '1.8-Cable Curls', '1.9-Cable Cross-Body Curls', '3.1-Cable Abdominal Crunches', '3.2-Hip Thrust (HS)', '3.3-Hack Squat (HS)', '3.4-Leg Press (HS)', '3.5-Leg Press Cybex'], 
+            'Chest and Triceps': ['1.0-Push-Ups', '2.1-Bench Press', '2.2-Chest Press Seated (HS)', '2.3-Cable Chest Press', '2.4-Military Press (Standing)', '2.5-DB Press Seated', '2.6-DB Chest Press', '2.7-DB Center Press', '2.8-Triceps Ext Standing (Straps)', '2.9-Triceps Ext Standing (Short Bar)', '2.10-Lat Pull Straight Arm (Straps)', '3.1-Cable Abdominal Crunches', '3.2-Hip Thrust (HS)', '3.3-Hack Squat (HS)', '3.4-Leg Press (HS)', '3.5-Leg Press Cybex'], 
+            'Full Body': ALL_EXERCISES 
         };
-        localStorage.setItem('macro_goals', JSON.stringify(goals));
 
-        // UI Feedback: Flash the label to show save happened
-        const label = document.getElementById('settings-label');
-        if (label) {
-            label.style.color = 'var(--emerald)';
-            setTimeout(() => label.style.color = '#64748b', 300);
-        }
-    }
+        function getTodayLocal() { return new Date().toLocaleDateString('en-CA'); }
+        const numSort = (a, b) => a.localeCompare(b, undefined, { numeric: true });
+        let favorites = JSON.parse(localStorage.getItem('workoutFavorites')) || [...ALL_EXERCISES];
+        let sessionHistory = JSON.parse(localStorage.getItem('workoutVolumeHistory')) || [];
+        let personalBests = JSON.parse(localStorage.getItem('personalBests')) || {};
+        let exerciseMemory = JSON.parse(localStorage.getItem('exerciseMemory')) || {};
 
-    function loadGoals() {
-        const savedGoals = JSON.parse(localStorage.getItem('macro_goals'));
-        if (savedGoals) {
-            document.getElementById('input-weight').value = savedGoals.weight;
-            document.getElementById('input-age').value = savedGoals.age;
-            document.getElementById('input-ft').value = savedGoals.ft;
-            document.getElementById('input-in').value = savedGoals.in;
-            document.getElementById('input-gender').value = savedGoals.gender;
-            document.getElementById('input-gpl').value = savedGoals.gpl;
-            document.getElementById('input-activity').value = savedGoals.activity;
-            document.getElementById('target-p').value = savedGoals.tp;
-            document.getElementById('target-f').value = savedGoals.tf;
-            document.getElementById('target-c').value = savedGoals.tc;
-            document.getElementById('target-cal').value = savedGoals.tcal;
-        }
-    }
-
-    // --- APP CORE ---
-    function initFoodSelect() {
-        foodSel.innerHTML = '<option value="" disabled selected>Select Food to Add...</option>';
-        Object.keys(fullFoodDb).sort((a,b) => fullFoodDb[a].name.localeCompare(fullFoodDb[b].name)).forEach(id => {
-            const opt = document.createElement('option'); 
-            opt.value = id; 
-            opt.textContent = fullFoodDb[id].name; 
-            foodSel.appendChild(opt);
-        });
-    }
-
-    window.addEventListener('load', () => {
-        loadGoals(); 
-        dateIn.value = activeDate;
-        
-        initFoodSelect();
-        loadDate(activeDate);
-
-        // Bind Listeners
-        const goalInputs = ['input-weight', 'input-age', 'input-ft', 'input-in', 'input-gender', 'input-gpl', 'input-activity', 'target-p', 'target-f', 'target-c', 'target-cal'];
-        goalInputs.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) {
-                el.addEventListener('input', () => {
-                    if(id.startsWith('input-')) syncGoals();
-                    else calc();
-                    saveAll();
-                });
-            }
-        });
-    });
-
-    function syncGoals() {
-        const lb = parseFloat(document.getElementById('input-weight').value) || 0;
-        const gpl = parseFloat(document.getElementById('input-gpl').value) || 0;
-        const age = parseFloat(document.getElementById('input-age').value) || 0;
-        const ft = parseFloat(document.getElementById('input-ft').value) || 0;
-        const inch = parseFloat(document.getElementById('input-in').value) || 0;
-        const gender = document.getElementById('input-gender').value;
-        const multiplier = parseFloat(document.getElementById('input-activity').value);
-
-        const kg = lb * 0.453592;
-        const cm = ((ft * 12) + inch) * 2.54;
-
-        let bmr = (10 * kg) + (6.25 * cm) - (5 * age);
-        bmr = (gender === 'male') ? bmr + 5 : bmr - 161;
-
-        document.getElementById('target-p').value = Math.round(lb * gpl);
-        document.getElementById('target-cal').value = Math.round(bmr * multiplier);
-        calc(); 
-    }
-
-    function loadDate(date) {
-        activeDate = date;
-        foodLogUI.innerHTML = '';
-        if (!storage[activeDate]) storage[activeDate] = [];
-        storage[activeDate].forEach((entry, idx) => renderRow(entry, idx));
-        calc();
-    }
-
-    function renderRow(entry, idx) {
-        const info = fullFoodDb[entry.id];
-        if (!info) return;
-        const div = document.createElement('div');
-        div.className = "food-row";
-        const unitHtml = info.isUnit ? `<span class="label-xs">Units</span>` :
-            `<select class="unit-edit" style="background:transparent; border:none; color:var(--indigo); font-size:9px; font-weight:900;">
-                <option value="gm" ${entry.unit === 'gm' ? 'selected' : ''}>gm</option>
-                <option value="oz" ${entry.unit === 'oz' ? 'selected' : ''}>oz</option>
-            </select>`;
-
-        div.innerHTML = `<div class="flex-grow" onclick="viewMacros('${entry.id}', ${entry.qty}, '${entry.unit}')">
-            <p style="font-size:12px; font-weight:bold; margin:0;">${info.name}</p>
-            <div class="flex items-center gap-2 mt-2">
-                <input type="number" value="${entry.qty}" class="qty-input" style="width:50px; background:black; border:1px solid #334155; color:var(--indigo); padding:4px; border-radius:6px;" onclick="event.stopPropagation()">
-                ${unitHtml}
-            </div>
-        </div>
-        <div style="text-align:right;" onclick="viewMacros('${entry.id}', ${entry.qty}, '${entry.unit}')">
-            <p style="font-size:14px; font-weight:900; margin:0;"><span class="row-p">0</span><span style="font-size:10px; color:#64748b; margin-left:2px;">g P</span></p>
-            <p style="font-size:10px; color:var(--rose); font-weight:bold; margin:0;"><span class="row-cal">0</span> cal</p>
-        </div>
-        <button class="remove-btn">✕</button>`;
-
-        const qtyIn = div.querySelector('.qty-input');
-        qtyIn.oninput = () => { storage[activeDate][idx].qty = parseFloat(qtyIn.value) || 0; saveAll(); calc(); };
-        
-        const unitIn = div.querySelector('.unit-edit');
-        if(unitIn) {
-            unitIn.onclick = (e) => e.stopPropagation();
-            unitIn.onchange = () => { storage[activeDate][idx].unit = unitIn.value; saveAll(); calc(); };
+        function calculatePlates(plateWeight) {
+            if (plateWeight <= 0) return "";
+            let perSide = plateWeight / 2;
+            const plates = [45, 25, 10, 5, 2.5];
+            let result = [];
+            plates.forEach(p => {
+                let count = Math.floor(perSide / p);
+                if (count > 0) { result.push(`${count}x${p}`); perSide -= count * p; }
+            });
+            return result.length ? `Side: ${result.join(', ')}` : "";
         }
 
-        div.querySelector('.remove-btn').onclick = (e) => { 
-            e.stopPropagation();
-            confirmDelete(idx);
-        };
-        foodLogUI.appendChild(div);
-    }
-
-    function calc() {
-        let totals = { p:0, f:0, c:0, cal:0 };
-        const entries = storage[activeDate] || [];
-        entries.forEach((entry, idx) => {
-            const item = fullFoodDb[entry.id]; 
-            if(!item) return;
-            let mult = item.isUnit ? entry.qty : (entry.unit === 'oz' ? entry.qty * 28.35 : entry.qty) / 100;
-            const p = item.p * mult, f = item.f * mult, c = item.c * mult, cal = item.cal * mult;
-            totals.p += p; totals.f += f; totals.c += c; totals.cal += cal;
-            const row = foodLogUI.children[idx];
-            if(row) { row.querySelector('.row-p').textContent = p.toFixed(0); row.querySelector('.row-cal').textContent = Math.round(cal); }
-        });
-        updateUI(totals);
-        updateWeeklyTrends();
-    }
-
-    function updateUI(t) {
-        const targets = { 
-            p: document.getElementById('target-p').value, 
-            f: document.getElementById('target-f').value, 
-            c: document.getElementById('target-c').value, 
-            cal: document.getElementById('target-cal').value 
-        };
-        const set = (id, cur, tar) => { 
-            const textEl = document.getElementById(`${id}-text`); 
-            const barEl = document.getElementById(`${id}-bar`);
-            if(textEl) textEl.textContent = `${Math.round(cur)} / ${tar}`;
-            if(barEl) barEl.style.width = Math.min(100, (cur/tar)*100) + '%';
-        };
-        set('p', t.p, targets.p); set('f', t.f, targets.f); set('c', t.c, targets.c); set('cal', t.cal, targets.cal);
-        document.getElementById('smart-summary').textContent = `${Math.round(t.p)}g P / ${Math.round(t.cal)} Cal`;
-    }
-
-    function updateWeeklyTrends() {
-        const container = document.getElementById('weekly-table-container');
-        const tP = parseFloat(document.getElementById('target-p').value) || 0;
-        const tC = parseFloat(document.getElementById('target-c').value) || 0;
-        const tCal = parseFloat(document.getElementById('target-cal').value) || 0;
-
-        let html = `<table style="width:100%; border-collapse:collapse; font-size:10px; text-align:left; table-layout: fixed;">
-            <thead><tr style="border-bottom:1px solid #334155; color:#64748b; text-transform:uppercase;">
-                <th style="padding:10px 4px 10px 12px; width: 22%;">Date</th>
-                <th style="padding:10px 4px; text-align:center;">P</th>
-                <th style="padding:10px 4px; text-align:center;">F</th>
-                <th style="padding:10px 4px; text-align:center;">C</th>
-                <th style="padding:10px 12px 10px 4px; text-align:right;">Cal</th>
-            </tr></thead><tbody>`;
-
-        for (let i = 0; i < 7; i++) {
-            let d = new Date();
-            d.setDate(d.getDate() - i);
-            let dStr = d.toLocaleDateString('en-CA');
-            let day = { p: 0, f: 0, c: 0, cal: 0 };
-            
-            if (storage[dStr]) {
-                storage[dStr].forEach(entry => {
-                    const item = fullFoodDb[entry.id];
-                    if (item) {
-                        let mult = item.isUnit ? entry.qty : (entry.unit === 'oz' ? entry.qty * 28.35 : entry.qty) / 100;
-                        day.p += (item.p * mult); day.f += (item.f * mult); day.c += (item.c * mult); day.cal += (item.cal * mult);
-                    }
-                });
-            }
-
-            const pColor = (day.p < (tP * 0.8)) ? 'var(--rose)' : 'var(--indigo)';
-            const cColor = (day.c > tC) ? 'var(--rose)' : 'var(--emerald)';
-            const calColor = (day.cal > tCal) ? 'var(--rose)' : 'white';
-            const label = i === 0 ? "Today" : d.toLocaleDateString('en-US', {weekday:'short', month:'numeric', day:'numeric'});
-            
-            html += `<tr style="background:${i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'}; border-bottom:1px solid rgba(51,65,85,0.2);">
-                <td style="padding:12px 4px 12px 12px; font-weight:900; white-space:nowrap;">${label}</td>
-                <td style="padding:12px 4px; text-align:center; color:${pColor}; font-weight:bold;">${Math.round(day.p)}</td>
-                <td style="padding:12px 4px; text-align:center; color:#94a3b8;">${Math.round(day.f)}</td>
-                <td style="padding:12px 4px; text-align:center; color:${cColor}; font-weight:bold;">${Math.round(day.c)}</td>
-                <td style="padding:12px 12px 10px 4px; text-align:right; color:${calColor}; font-weight:900;">${Math.round(day.cal)}</td>
-            </tr>`;
-        }
-        container.innerHTML = html + `</tbody></table>`;
-    }
-
-    // --- POPUP FORMS & LOGIC ---
-
-    function viewMacros(id, qty, unit) {
-        const item = fullFoodDb[id];
-        if (!item) return;
-        let mult = item.isUnit ? qty : (unit === 'oz' ? qty * 28.35 : qty) / 100;
-        const p = (item.p * mult).toFixed(1);
-        const f = (item.f * mult).toFixed(1);
-        const c = (item.c * mult).toFixed(1);
-        const cal = Math.round(item.cal * mult);
-
-        showModal(`
-            <p class="label-xs">Macro Viewer</p>
-            <h2 style="margin:0;">${item.name}</h2>
-            <p class="label-xs mt-4">Current Portion: ${qty} ${unit}</p>
-            <div class="grid grid-cols-2 gap-4 mt-4">
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--indigo);">Protein</p>
-                    <p style="font-size:1.5rem; font-weight:900; margin:0;">${p}g</p>
-                </div>
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--rose);">Calories</p>
-                    <p style="font-size:1.5rem; font-weight:900; margin:0;">${cal}</p>
-                </div>
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--amber);">Fat</p>
-                    <p style="font-size:1rem; font-weight:900; margin:0;">${f}g</p>
-                </div>
-                <div style="background:var(--slate-900); padding:12px; border-radius:12px; text-align:center;">
-                    <p class="label-xs" style="color:var(--emerald);">Carbs</p>
-                    <p style="font-size:1rem; font-weight:900; margin:0;">${c}g</p>
-                </div>
-            </div>
-            <button onclick="closeModal()" class="btn-primary mt-4">Close</button>
-        `);
-    }
-
-    function confirmDelete(idx) {
-        showModal(`
-            <p class="label-xs">Confirm Removal</p>
-            <p>Are you sure you want to remove this item from your log?</p>
-            <div class="grid grid-cols-2 gap-4 mt-6">
-                <button onclick="closeModal()" class="btn-secondary">Cancel</button>
-                <button onclick="deleteItem(${idx})" class="btn-danger">Delete</button>
-            </div>
-        `);
-    }
-
-    function deleteItem(idx) {
-        storage[activeDate].splice(idx, 1);
-        saveAll();
-        loadDate(activeDate);
-        closeModal();
-    }
-
-    function openEditPopup(id = null, prefill = {}) {
-        const isNew = !id;
-        const item = id ? fullFoodDb[id] : prefill;
-        
-        showModal(`
-            <p class="label-xs">${isNew ? 'New Custom Item' : 'Edit Item'}</p>
-            <input type="text" id="edit-name" placeholder="Item Name" class="full-input" value="${item.name || ''}">
-            <div class="grid grid-cols-2 gap-4">
-                <div><label class="label-xs">Protein (g)</label><input type="number" id="edit-p" class="full-input" value="${item.p || 0}"></div>
-                <div><label class="label-xs">Fat (g)</label><input type="number" id="edit-f" class="full-input" value="${item.f || 0}"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div><label class="label-xs">Carbs (g)</label><input type="number" id="edit-c" class="full-input" value="${item.c || 0}"></div>
-                <div><label class="label-xs">Calories</label><input type="number" id="edit-cal" class="full-input" value="${item.cal || 0}"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="label-xs">Unit</label>
-                    <select id="edit-unit" class="full-input">
-                        <option value="gm" ${item.unit === 'gm' ? 'selected' : ''}>gm</option>
-                        <option value="oz" ${item.unit === 'oz' ? 'selected' : ''}>oz</option>
-                        <option value="units" ${item.unit === 'units' ? 'selected' : ''}>units</option>
-                    </select>
-                </div>
-                <div><label class="label-xs">Serving Size</label><input type="number" id="edit-def" class="full-input" value="${item.def || 100}"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-4 mt-4">
-                <button onclick="closeModal()" class="btn-secondary">Close</button>
-                <button onclick="saveEdit('${id || 'custom-' + Date.now()}')" class="btn-primary">Save Food</button>
-            </div>
-        `);
-    }
-
-    function saveEdit(id) {
-        const name = document.getElementById('edit-name').value;
-        if (!name) { alert("Please enter a name."); return; }
-        
-        const unit = document.getElementById('edit-unit').value;
-        fullFoodDb[id] = {
-            name: name,
-            p: parseFloat(document.getElementById('edit-p').value) || 0,
-            f: parseFloat(document.getElementById('edit-f').value) || 0,
-            c: parseFloat(document.getElementById('edit-c').value) || 0,
-            cal: parseFloat(document.getElementById('edit-cal').value) || 0,
-            def: parseFloat(document.getElementById('edit-def').value) || 100,
-            unit: unit,
-            isUnit: unit === 'units'
-        };
-        
-        saveAll();
-        initFoodSelect();
-        foodSel.value = id;
-        closeModal();
-    }
-
-    // --- SCANNER LOGIC ---
-    let html5QrCode;
-
-    async function onScanSuccess(decodedText, decodedResult) {
-        if (html5QrCode) {
-            await html5QrCode.stop();
-            document.getElementById('scanner-container').classList.add('hidden');
-        }
-        
-        try {
-            const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
-            const data = await response.json();
-            
-            if (data.status === 1) {
-                const product = data.product;
-                const nutrients = product.nutriments;
-                const name = product.product_name || "Unknown Item";
-                
-                // Open Food Facts nutrients are usually per 100g
-                const p = nutrients.proteins_100g || 0;
-                const f = nutrients.fat_100g || 0;
-                const c = nutrients.carbohydrates_100g || 0;
-                const cal = nutrients.energy_kcal_100g || 0;
-                
-                openEditPopup('scan-' + decodedText, {
-                    name: name,
-                    p: parseFloat(p),
-                    f: parseFloat(f),
-                    c: parseFloat(c),
-                    cal: parseFloat(cal),
-                    def: 100,
-                    unit: 'gm'
-                });
+        function refreshRowCalculation(inputEl) {
+            const row = inputEl.closest('.set-row');
+            if (!row) return;
+            const block = inputEl.closest('.exercise-block');
+            const exName = block.querySelector('.ex-select').value;
+            const bar = parseFloat(block.querySelector('.bar-wt-in').value) || 0;
+            const plates = parseFloat(row.querySelector('.wt-val').value) || 0;
+            const reps = parseFloat(row.querySelector('.rep-val').value) || 0;
+            const total = bar + plates;
+            row.querySelector('.total-wt-display').textContent = total;
+            row.querySelector('.plate-hint').textContent = calculatePlates(plates);
+            if (reps > 0 && total > 0) {
+                const est1RM = reps > 20 ? "Endurance" : Math.round(total * (1 + (reps / 30)));
+                row.querySelector('.rm-display').textContent = reps > 20 ? est1RM : `Est. 1RM: ${est1RM}`;
+            } else { row.querySelector('.rm-display').textContent = ""; }
+            const displaySpan = row.querySelector('.total-wt-display');
+            if (total > (personalBests[exName] || 0)) {
+                displaySpan.className = "total-wt-display pb-glow";
+                row.querySelector('.pb-badge').textContent = "⭐ PB";
             } else {
-                alert("Product not found in Open Food Facts.");
+                displaySpan.className = "total-wt-display";
+                displaySpan.style.color = "var(--green)";
+                row.querySelector('.pb-badge').textContent = "";
             }
-        } catch (error) {
-            console.error("Error fetching food data:", error);
-            alert("Error fetching food data.");
+            calculateTotalVolume();
         }
-    }
 
-    document.getElementById('toggle-scan').onclick = () => {
-        document.getElementById('scanner-container').classList.remove('hidden');
-        html5QrCode = new Html5Qrcode("reader");
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
-    };
+        function calculateTotalVolume() {
+            let total = 0;
+            document.querySelectorAll('.exercise-block').forEach(block => {
+                const bar = parseFloat(block.querySelector('.bar-wt-in').value) || 0;
+                block.querySelectorAll('.set-row').forEach(row => {
+                    total += (parseFloat(row.querySelector('.rep-val').value) || 0) * (bar + (parseFloat(row.querySelector('.wt-val').value) || 0));
+                });
+            });
+            document.getElementById('totalVolumeDisplay').textContent = total.toLocaleString() + ' lbs';
+            return total;
+        }
 
-    document.getElementById('close-scan-btn').onclick = async () => {
-        if (html5QrCode) await html5QrCode.stop();
-        document.getElementById('scanner-container').classList.add('hidden');
-    };
+        function addSetRow(list, reps = "", plates = "") {
+            const s = document.createElement('div');
+            s.className = 'set-row flex flex-column';
+            s.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+            s.style.paddingBottom = "8px";
+            s.innerHTML = `
+                <div class="flex gap-2 items-center">
+                    <button class="del-set-btn" onclick="this.closest('.set-row').remove(); calculateTotalVolume(); updateSetNumbers(this);">🗑️</button>
+                    <span class="set-num" style="font-size: 10px; width: 20px; color: var(--text-muted);">#1</span>
+                    <input type="number" placeholder="Reps" class="rep-val w-full" style="background:#111827;" oninput="refreshRowCalculation(this)">
+                    <input type="number" placeholder="+Wt" class="wt-val w-full" style="background:#111827;" oninput="refreshRowCalculation(this)">
+                    <div style="width: 70px; text-align: right; display:flex; flex-direction:column; align-items:flex-end;">
+                        <div style="font-size: 11px; font-weight: bold;"><span class="total-wt-display">0</span> lbs</div>
+                        <div class="pb-badge" style="font-size: 8px; color: var(--gold);"></div>
+                    </div>
+                    <button class="btn bg-blue" style="padding: 2px 8px; font-size:12px;" onclick="cloneThisSet(this)">+</button>
+                </div>
+                <div class="flex justify-between items-center" style="margin-top: 4px; padding-left: 20px;">
+                    <div class="plate-hint" style="font-size: 8px; color: #60a5fa;"></div>
+                    <div class="rm-display" style="font-size: 8px; color: var(--text-muted);"></div>
+                </div>
+            `;
+            s.querySelector('.rep-val').value = reps;
+            s.querySelector('.wt-val').value = plates;
+            list.appendChild(s);
+            updateSetNumbers(s);
+            refreshRowCalculation(s.querySelector('.wt-val'));
+            return s;
+        }
 
-    document.getElementById('toggle-manual').onclick = () => openEditPopup();
+        window.updateSetNumbers = (el) => {
+            const list = el.closest ? el.closest('.sets-list') : el.parentElement;
+            if(!list) return;
+            list.querySelectorAll('.set-row').forEach((row, i) => { row.querySelector('.set-num').textContent = `#${i+1}`; });
+        };
 
-    // Toggle Handlers
-    dateIn.onchange = (e) => loadDate(e.target.value);
-    
-    document.getElementById('add-btn').onclick = () => {
-        const id = foodSel.value; 
-        if(!id) return;
-        if(!storage[activeDate]) storage[activeDate] = [];
-        const item = fullFoodDb[id];
-        storage[activeDate].push({ id, qty: item.def, unit: item.unit });
-        saveAll(); loadDate(activeDate); foodSel.value = "";
-    };
+        window.cloneThisSet = (btn) => {
+            const currentRow = btn.closest('.set-row');
+            const list = currentRow.parentElement;
+            addSetRow(list, currentRow.querySelector('.rep-val').value, currentRow.querySelector('.wt-val').value);
+            calculateTotalVolume();
+        };
 
-    document.getElementById('toggle-settings').onclick = () => { 
-        document.getElementById('settings-content').classList.toggle('hidden'); 
-        document.getElementById('settings-chevron').classList.toggle('rotate-180');
-    };
-    document.getElementById('toggle-progress').onclick = () => document.getElementById('progress-content').classList.toggle('hidden');
-    document.getElementById('toggle-history').onclick = () => {
-        document.getElementById('history-content').classList.toggle('hidden');
-        document.getElementById('history-chevron').classList.toggle('rotate-180');
-    };
-</script>
+        function updateGhostMemory(div, exName) {
+            const mem = exerciseMemory[exName];
+            const hintArea = div.querySelector('.memory-hint-area');
+            const barIn = div.querySelector('.bar-wt-in');
+            if (mem && exName) {
+                const targetWeight = parseFloat(mem.lastPlates) + (parseFloat(mem.lastPlates) > 50 ? 5 : 2.5);
+                hintArea.innerHTML = `<div class="memory-hint">Last: ${mem.lastPlates} lbs x ${mem.lastReps} (Bar: ${mem.lastBar})</div><div class="target-hint">Target: ${targetWeight} lbs</div>`;
+                if (parseFloat(barIn.value) === 0) barIn.value = mem.lastBar;
+            } else { hintArea.innerHTML = ""; }
+        }
+
+        function createExerciseSection(init = null) {
+            const div = document.createElement('div');
+            div.className = 'exercise-block card space-y-4';
+            div.style.background = '#374151';
+            div.innerHTML = `
+                <div class="flex justify-between items-center gap-2">
+                    <select class="ex-select w-full" style="background:#1f2937;"><option value="">-- Select Exercise --</option></select>
+                    <button class="btn bg-red" style="padding: 4px 10px;" onclick="this.parentElement.parentElement.remove(); calculateTotalVolume();">✕</button>
+                </div>
+                <div class="memory-hint-area flex justify-between items-center" style="min-height:20px;"></div>
+                <div class="flex items-center gap-4" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                    <div class="flex items-center gap-2">
+                        <label style="font-size: 8px; text-transform: uppercase;">Bar/Sled Weight</label>
+                        <input type="number" class="bar-wt-in" style="width: 80px; text-align: center;" value="0">
+                    </div>
+                </div>
+                <div class="sets-list space-y-4" style="margin-top: 10px;"></div>
+                <textarea placeholder="Notes..." class="notes-in w-full" style="height: 60px; font-size: 12px;"></textarea>
+            `;
+            const exSelect = div.querySelector('.ex-select');
+            const barIn = div.querySelector('.bar-wt-in');
+            const list = div.querySelector('.sets-list');
+            const split = document.getElementById('workoutTypeSelect').value;
+            (EXERCISE_GROUPS[split] || ALL_EXERCISES).sort(numSort).filter(ex => favorites.includes(ex)).forEach(ex => {
+                const opt = document.createElement('option'); opt.value = opt.textContent = ex; exSelect.appendChild(opt);
+            });
+            exSelect.onchange = () => { updateGhostMemory(div, exSelect.value); div.querySelectorAll('.wt-val').forEach(i => refreshRowCalculation(i)); };
+            barIn.oninput = () => div.querySelectorAll('.wt-val').forEach(i => refreshRowCalculation(i));
+            if (init) {
+                exSelect.value = init.name; barIn.value = init.barWeight || 0;
+                init.setsData.forEach(s => addSetRow(list, s.reps, s.platesWeight));
+                div.querySelector('.notes-in').value = init.notes || "";
+                updateGhostMemory(div, init.name);
+            } else { addSetRow(list); }
+            return div;
+        }
+
+        document.getElementById('sortExercisesBtn').onclick = () => {
+            const container = document.getElementById('exercisesContainer');
+            const blocks = Array.from(container.querySelectorAll('.exercise-block'));
+            blocks.sort((a, b) => (a.querySelector('.ex-select').value || "ZZZ").localeCompare(b.querySelector('.ex-select').value || "ZZZ", undefined, {numeric:true}));
+            blocks.forEach(block => container.appendChild(block));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        function getSessionSnapshot() {
+            const data = [];
+            document.querySelectorAll('.exercise-block').forEach(el => {
+                const setsData = [];
+                el.querySelectorAll('.set-row').forEach(s => { setsData.push({ reps: s.querySelector('.rep-val').value, platesWeight: s.querySelector('.wt-val').value }); });
+                data.push({ name: el.querySelector('.ex-select').value, barWeight: el.querySelector('.bar-wt-in').value, notes: el.querySelector('.notes-in').value, setsData });
+            });
+            return data;
+        }
+
+        document.getElementById('saveCsvBtn').onclick = async () => {
+            const data = getSessionSnapshot();
+            const date = document.getElementById('workoutDateInput').value;
+            const split = document.getElementById('workoutTypeSelect').value;
+            const vol = calculateTotalVolume();
+
+            data.forEach(ex => {
+                if (ex.setsData.length > 0 && ex.name) {
+                    const lastSet = ex.setsData[ex.setsData.length - 1];
+                    exerciseMemory[ex.name] = { lastBar: ex.barWeight, lastPlates: lastSet.platesWeight, lastReps: lastSet.reps, date: date };
+                }
+                ex.setsData.forEach(s => {
+                    const total = (parseFloat(ex.barWeight)||0) + (parseFloat(s.platesWeight)||0);
+                    if (total > (personalBests[ex.name] || 0)) personalBests[ex.name] = total;
+                });
+            });
+
+            localStorage.setItem('personalBests', JSON.stringify(personalBests));
+            localStorage.setItem('exerciseMemory', JSON.stringify(exerciseMemory));
+            localStorage.setItem('lastFullSnapshot', JSON.stringify(data));
+
+            if (vol > 0) {
+                const existingIdx = sessionHistory.findIndex(s => s.date === date);
+                if (existingIdx !== -1) sessionHistory[existingIdx] = { date, split, volume: vol };
+                else sessionHistory.push({ date, split, volume: vol });
+                localStorage.setItem('workoutVolumeHistory', JSON.stringify(sessionHistory)); 
+                updateHistoryTable(); 
+            }
+
+            let csv = "Date,Split,Exercise,Set,Reps,Bar,Plates,Total,Vol,Notes\n";
+            data.forEach(ex => { ex.setsData.forEach((s, i) => {
+                const total = (parseFloat(ex.barWeight)||0) + (parseFloat(s.platesWeight)||0);
+                csv += `"${date}","${split}","${ex.name}","${i+1}","${s.reps}","${ex.barWeight}","${s.platesWeight}","${total}","${(parseFloat(s.reps)||0)*total}","${ex.notes.replace(/"/g, '""')}"\n`;
+            });});
+
+            // Clipboard Fallback
+            try { await navigator.clipboard.writeText(csv); document.getElementById('autoSaveStatus').textContent = "Saved & Copied!"; } catch(e) {}
+
+            // TRIGGER SHARE TUNNEL
+            if (navigator.share) {
+                // Browsers
+                try { await navigator.share({ title: `Workout Log - ${date}`, text: csv }); } catch (err) { console.log("Share failed:", err); }
+            } else if (window.AndroidBridge) {
+                // APK Tunnel
+                window.AndroidBridge.shareCSV(csv);
+            } else {
+                // Fallback Textbox
+                const container = document.getElementById('exportAreaContainer');
+                document.getElementById('csvOutputText').value = csv;
+                container.classList.remove('hidden');
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }
+        };
+
+        document.getElementById('importCsvBtn').onclick = () => document.getElementById('csvFileInput').click();
+        document.getElementById('csvFileInput').onchange = (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const lines = event.target.result.split(/\r?\n/).filter(l => l.trim().length > 0);
+                    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+                    const idx = { date: headers.indexOf('Date'), split: headers.indexOf('Split'), ex: headers.indexOf('Exercise'), reps: headers.indexOf('Reps'), bar: headers.indexOf('Bar'), plates: headers.indexOf('Plates'), notes: headers.indexOf('Notes') };
+                    const imported = {};
+                    for (let i = 1; i < lines.length; i++) {
+                        const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(s => s.replace(/^"|"$/g, '').trim());
+                        if (row.length < 5) continue;
+                        const exName = row[idx.ex];
+                        if (!imported[exName]) {
+                            imported[exName] = { name: exName, barWeight: row[idx.bar] || 0, notes: row[idx.notes] || "", setsData: [] };
+                            document.getElementById('workoutDateInput').value = row[idx.date];
+                            document.getElementById('workoutTypeSelect').value = row[idx.split];
+                        }
+                        imported[exName].setsData.push({ reps: row[idx.reps], platesWeight: row[idx.plates] });
+                    }
+                    const container = document.getElementById('exercisesContainer'); container.innerHTML = '';
+                    Object.values(imported).forEach(ex => container.appendChild(createExerciseSection(ex)));
+                    document.getElementById('sortExercisesBtn').click(); calculateTotalVolume(); e.target.value = '';
+                } catch (err) { alert("Import Error: " + err); }
+            };
+            reader.readAsText(file);
+        };
+
+        document.getElementById('addExerciseBtn').onclick = () => { document.getElementById('exercisesContainer').appendChild(createExerciseSection()); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); };
+        document.getElementById('loadLastBtn').onclick = () => {
+            const last = JSON.parse(localStorage.getItem('lastFullSnapshot')); if (!last) return alert("No history.");
+            document.getElementById('exercisesContainer').innerHTML = '';
+            last.forEach(d => document.getElementById('exercisesContainer').appendChild(createExerciseSection(d)));
+            document.getElementById('sortExercisesBtn').click(); calculateTotalVolume();
+        };
+
+        let timerInterval;
+        function startTimer(s) { 
+            clearInterval(timerInterval); let t = s; 
+            const disp = document.getElementById('timerDisplay'); 
+            const upd = () => { 
+                const m = Math.floor(t/60); const sec = t%60; 
+                disp.textContent = `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`; 
+            }; 
+            upd(); 
+            timerInterval = setInterval(() => { t--; upd(); if(t<=0){ clearInterval(timerInterval); disp.textContent="DONE!"; }}, 1000); 
+        }
+        function stopTimer() { clearInterval(timerInterval); document.getElementById('timerDisplay').textContent = "00:00"; }
+
+        function updateHistoryTable() {
+            const b = document.getElementById('historyTableBody'); b.innerHTML = '';
+            sessionHistory.slice(-5).reverse().forEach((s, i) => {
+                const idx = sessionHistory.length - 1 - i;
+                const row = document.createElement('tr');
+                row.innerHTML = `<td style="color:var(--text-muted);">${s.date}</td><td>${s.split}</td><td class="text-right" style="color:var(--green); font-weight:bold;">${s.volume.toLocaleString()}</td><td class="text-right"><button onclick="deleteHistoryItem(${idx})" style="background:transparent; border:none; cursor:pointer;">🗑️</button></td>`;
+                b.appendChild(row);
+            });
+        }
+        window.deleteHistoryItem = (i) => { if(confirm("Delete?")){ sessionHistory.splice(i,1); localStorage.setItem('workoutVolumeHistory', JSON.stringify(sessionHistory)); updateHistoryTable(); }};
+
+        window.onfocus = () => { document.getElementById('workoutDateInput').value = getTodayLocal(); };
+        document.getElementById('toggleFavBtn').onclick = () => { 
+            const p = document.getElementById('favoritesPanel'); p.classList.toggle('collapsed'); 
+            document.getElementById('favChevron').textContent = p.classList.contains('collapsed') ? '▼' : '▲'; 
+        };
+
+        ALL_EXERCISES.sort(numSort).forEach(ex => {
+            const d = document.createElement('div');
+            d.innerHTML = `<label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px; border-radius:4px;"><input type="checkbox" ${favorites.includes(ex)?'checked':''}> ${ex}</label>`;
+            d.querySelector('input').onchange = (e) => {
+                if(e.target.checked) favorites.push(ex); else favorites = favorites.filter(f => f !== ex);
+                localStorage.setItem('workoutFavorites', JSON.stringify(favorites));
+            };
+            document.getElementById('favoritesGrid').appendChild(d);
+        });
+
+        window.onload = () => {
+            document.getElementById('workoutDateInput').value = getTodayLocal();
+            const recovery = localStorage.getItem('active_recovery_backup');
+            if (recovery && confirm("Restore session?")) {
+                const data = JSON.parse(recovery);
+                document.getElementById('exercisesContainer').innerHTML = '';
+                data.forEach(d => document.getElementById('exercisesContainer').appendChild(createExerciseSection(d)));
+                document.getElementById('sortExercisesBtn').click();
+            } else { document.getElementById('exercisesContainer').appendChild(createExerciseSection()); }
+            updateHistoryTable(); calculateTotalVolume();
+        };
+
+        setInterval(() => {
+            const data = getSessionSnapshot();
+            if (data.length) {
+                localStorage.setItem('active_recovery_backup', JSON.stringify(data));
+                document.getElementById('autoSaveStatus').textContent = `Auto-saved: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            }
+        }, 30000);
+    </script>
 </body>
 </html>
