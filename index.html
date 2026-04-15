@@ -3,125 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Workout Tracker v8.6 - Precision Pro</title>
-    <style>
-        :root {
-            --bg-dark: #111827;
-            --card-bg: #1f2937;
-            --input-bg: #374151;
-            --border-color: #4b5563;
-            --text-main: #e5e7eb;
-            --text-muted: #9ca3af;
-            --blue: #2563eb;
-            --green: #10b981;
-            --red: #ef4444;
-            --purple: #9333ea;
-            --orange: #ea580c;
-            --gold: #facc15;
-        }
-
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background-color: var(--bg-dark); 
-            color: var(--text-main); 
-            margin: 0; 
-            padding: 1rem; 
-            padding-bottom: calc(6rem + env(safe-area-inset-bottom)); 
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; }
-        .card { background-color: var(--card-bg); padding: 1rem; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); border: 1px solid #374151; }
-        
-        .btn { border-radius: 0.5rem; border: none; padding: 0.6rem 1rem; font-weight: bold; color: white; cursor: pointer; transition: all 0.2s; text-transform: uppercase; font-size: 0.75rem; }
-        .btn:active { transform: scale(0.95); }
-        .bg-blue { background-color: var(--blue); }
-        .bg-purple { background-color: var(--purple); }
-        .bg-orange { background-color: var(--orange); }
-        .bg-green { background-color: var(--green); }
-        .bg-red { background-color: var(--red); }
-        .bg-slate { background-color: #4b5563; }
-
-        #restTimerContainer { 
-            position: fixed; 
-            bottom: calc(1rem + env(safe-area-inset-bottom)); 
-            right: 1rem; 
-            z-index: 100; 
-            background: #1f2937; 
-            border: 2px solid var(--border-color); 
-            border-radius: 1rem; 
-            width: 130px; 
-            padding: 10px; 
-            text-align: center; 
-        }
-        
-        #volumeSummary { 
-            position: fixed; 
-            bottom: calc(1rem + env(safe-area-inset-bottom)); 
-            left: 1rem; 
-            z-index: 100; 
-            background: #1f2937; 
-            border: 2px solid var(--green); 
-            padding: 10px; 
-            border-radius: 1rem; 
-            width: 110px; 
-            text-align: center; 
-        }
-        
-        .flex { display: flex; }
-        .justify-between { justify-content: space-between; }
-        .items-center { align-items: center; }
-        .grid { display: grid; }
-        .grid-cols-2 { grid-template-columns: 1fr 1fr; }
-        .gap-2 { gap: 0.5rem; }
-        .gap-4 { gap: 1rem; }
-        .space-y-4 > * + * { margin-top: 1rem; }
-        .w-full { width: 100%; }
-        .hidden { display: none; }
-        .text-center { text-align: center; }
-
-        input, select, textarea {
-            background-color: var(--input-bg);
-            color: white;
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            border-radius: 6px;
-            outline: none;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        .pb-glow { color: var(--gold); text-shadow: 0 0 8px rgba(250, 204, 21, 0.6); font-weight: 800; }
-        .memory-hint { font-size: 10px; color: var(--blue); font-weight: bold; background: rgba(37, 99, 235, 0.1); padding: 4px 8px; border-radius: 4px; display: inline-block; }
-        .target-hint { font-size: 10px; color: var(--gold); font-weight: bold; }
-
-        table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        td, th { padding: 8px; border-bottom: 1px solid #374151; }
-
-        #autoSaveStatus { position: fixed; top: 0.5rem; right: 1rem; font-size: 9px; color: #4b5563; }
-        #favoritesPanel.collapsed { display: none; }
-        
-        .del-set-btn { background: transparent; border: none; color: var(--red); cursor: pointer; font-size: 14px; padding: 5px; opacity: 0.6; }
-
-        #exportAreaContainer { 
-            margin-top: 20px; 
-            padding: 15px; 
-            background: rgba(0,0,0,0.4); 
-            border: 1px dashed var(--blue); 
-            border-radius: 12px; 
-        }
-        #csvOutputText { 
-            width: 100%; 
-            height: 150px; 
-            font-family: monospace; 
-            font-size: 10px; 
-            background: #000; 
-            color: var(--green); 
-            border: 1px solid #334155; 
-            margin-top: 10px;
-        }
-    </style>
+    <title>Workout Tracker v8.7 - Precision Pro</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -141,8 +24,8 @@
     </div>
 
     <div class="container card">
-        <h1 class="text-center" style="margin: 0;">Workout Tracker <span style="color: var(--gold);">v8.6</span></h1>
-        
+        <h1 class="text-center" style="margin: 0;">Workout Tracker <span style="color: var(--gold);">v8.7</span></h1>
+
         <div style="background: rgba(55, 65, 81, 0.5); border: 1px solid var(--border-color); border-radius: 12px;">
             <button id="toggleFavBtn" style="width:100%; background:transparent; border:none; padding:12px; color:white; display:flex; justify-content:space-between; cursor:pointer; font-weight:bold; font-size:14px;">
                 <span>⭐ Manage Favorites</span>
@@ -160,11 +43,7 @@
             </div>
             <div>
                 <label style="font-size: 9px; text-transform: uppercase; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 4px;">Split</label>
-                <select id="workoutTypeSelect" class="w-full">
-                    <option>Full Body</option>
-                    <option>Back and Biceps</option>
-                    <option>Chest and Triceps</option>
-                </select>
+                <select id="workoutTypeSelect" class="w-full"></select>
             </div>
         </div>
 
@@ -177,8 +56,8 @@
                 <button id="loadLastBtn" class="btn bg-purple">↺ Load Last</button>
                 <button id="saveCsvBtn" class="btn bg-green">💾 SAVE & SHARE</button>
             </div>
-            <button id="importCsvBtn" class="btn bg-orange" style="width: 100%;">📂 Import CSV</button>
-            <input type="file" id="csvFileInput" class="hidden">
+            <button id="importCsvBtn" class="btn bg-orange" style="width: 100%;">📂 Import CSV/JSON</button>
+            <input type="file" id="csvFileInput" class="hidden" accept=".csv,.json">
         </div>
 
         <div id="exportAreaContainer" class="hidden">
@@ -198,21 +77,53 @@
                 </table>
             </div>
         </div>
-        
-        <p style="text-align:center; font-size: 10px; color: var(--text-muted);">v8.6 Precision Pro</p>
+
+        <p style="text-align:center; font-size: 10px; color: var(--text-muted);">v8.7 JSON Edition</p>
     </div>
 
     <script>
-        const ALL_EXERCISES = ['1.0-Push-Ups', '1.1-Pull-Ups', '1.2-Row Seated (Narrow)', '1.3-Row Seated (Wide Straps)', '1.4-Lat Pulldown (HS)', '1.5-DB Hammer Curls', '1.6-DB Cross-Body Curls', '1.7-Seated Hammer Curls', '1.8-Cable Curls', '1.9-Cable Cross-Body Curls', '3.1-Cable Abdominal Crunches', '3.2-Hip Thrust (HS)', '3.3-Hack Squat (HS)', '3.4-Leg Press (HS)', '3.5-Leg Press Cybex', '2.1-Bench Press', '2.2-Chest Press Seated (HS)', '2.3-Cable Chest Press', '2.4-Military Press (Standing)', '2.5-DB Press Seated', '2.6-DB Chest Press', '2.7-DB Center Press', '2.8-Triceps Ext Standing (Straps)', '2.9-Triceps Ext Standing (Short Bar)', '2.10-Lat Pull Straight Arm (Straps)'];
-        const EXERCISE_GROUPS = { 
-            'Back and Biceps': ['1.0-Push-Ups', '1.1-Pull-Ups', '1.2-Row Seated (Narrow)', '1.3-Row Seated (Wide Straps)', '1.4-Lat Pulldown (HS)', '1.5-DB Hammer Curls', '1.6-DB Cross-Body Curls', '1.7-Seated Hammer Curls', '1.8-Cable Curls', '1.9-Cable Cross-Body Curls', '3.1-Cable Abdominal Crunches', '3.2-Hip Thrust (HS)', '3.3-Hack Squat (HS)', '3.4-Leg Press (HS)', '3.5-Leg Press Cybex'], 
-            'Chest and Triceps': ['1.0-Push-Ups', '2.1-Bench Press', '2.2-Chest Press Seated (HS)', '2.3-Cable Chest Press', '2.4-Military Press (Standing)', '2.5-DB Press Seated', '2.6-DB Chest Press', '2.7-DB Center Press', '2.8-Triceps Ext Standing (Straps)', '2.9-Triceps Ext Standing (Short Bar)', '2.10-Lat Pull Straight Arm (Straps)', '3.1-Cable Abdominal Crunches', '3.2-Hip Thrust (HS)', '3.3-Hack Squat (HS)', '3.4-Leg Press (HS)', '3.5-Leg Press Cybex'], 
-            'Full Body': ALL_EXERCISES 
-        };
+        let ALL_EXERCISES = [];
+        let EXERCISE_GROUPS = {};
+        let workoutTypes = [];
+
+        async function loadExerciseData() {
+            try {
+                const response = await fetch('exercise_list.json');
+                const data = await response.json();
+                workoutTypes = data.workout_types;
+                ALL_EXERCISES = data.exercises.map(ex => `${ex.id}-${ex.name}`);
+                EXERCISE_GROUPS = { 'Full Body': ALL_EXERCISES };
+
+                data.workout_types.forEach(type => {
+                    if (type !== 'Full Body') {
+                        EXERCISE_GROUPS[type] = data.exercises
+                            .filter(ex => ex.groups.includes(type))
+                            .map(ex => `${ex.id}-${ex.name}`);
+                    }
+                });
+
+                const splitSelect = document.getElementById('workoutTypeSelect');
+                splitSelect.innerHTML = '';
+                workoutTypes.forEach(type => {
+                    const opt = document.createElement('option');
+                    opt.value = opt.textContent = type;
+                    splitSelect.appendChild(opt);
+                });
+
+                if (!localStorage.getItem('workoutFavorites')) {
+                    favorites = [...ALL_EXERCISES];
+                    localStorage.setItem('workoutFavorites', JSON.stringify(favorites));
+                }
+
+                renderFavoritesGrid();
+            } catch (err) {
+                console.error("Error loading exercises:", err);
+            }
+        }
 
         function getTodayLocal() { return new Date().toLocaleDateString('en-CA'); }
         const numSort = (a, b) => a.localeCompare(b, undefined, { numeric: true });
-        let favorites = JSON.parse(localStorage.getItem('workoutFavorites')) || [...ALL_EXERCISES];
+        let favorites = JSON.parse(localStorage.getItem('workoutFavorites')) || [];
         let sessionHistory = JSON.parse(localStorage.getItem('workoutVolumeHistory')) || [];
         let personalBests = JSON.parse(localStorage.getItem('personalBests')) || {};
         let exerciseMemory = JSON.parse(localStorage.getItem('exerciseMemory')) || {};
@@ -402,32 +313,42 @@
                 const existingIdx = sessionHistory.findIndex(s => s.date === date);
                 if (existingIdx !== -1) sessionHistory[existingIdx] = { date, split, volume: vol };
                 else sessionHistory.push({ date, split, volume: vol });
-                localStorage.setItem('workoutVolumeHistory', JSON.stringify(sessionHistory)); 
-                updateHistoryTable(); 
+                localStorage.setItem('workoutVolumeHistory', JSON.stringify(sessionHistory));
+                updateHistoryTable();
             }
 
-            let csv = "Date,Split,Exercise,Set,Reps,Bar,Plates,Total,Vol,Notes\n";
-            data.forEach(ex => { ex.setsData.forEach((s, i) => {
-                const total = (parseFloat(ex.barWeight)||0) + (parseFloat(s.platesWeight)||0);
-                csv += `"${date}","${split}","${ex.name}","${i+1}","${s.reps}","${ex.barWeight}","${s.platesWeight}","${total}","${(parseFloat(s.reps)||0)*total}","${ex.notes.replace(/"/g, '""')}"\n`;
-            });});
+            const workoutJSON = {
+                date: date,
+                split: split,
+                totalVolume: vol,
+                exercises: data
+            };
 
-            // Clipboard Fallback
-            try { await navigator.clipboard.writeText(csv); document.getElementById('autoSaveStatus').textContent = "Saved & Copied!"; } catch(e) {}
+            const fileName = `Workout_${date}.json`;
+            const jsonString = JSON.stringify(workoutJSON, null, 2);
 
-            // TRIGGER SHARE TUNNEL
-            if (navigator.share) {
-                // Browsers
-                try { await navigator.share({ title: `Workout Log - ${date}`, text: csv }); } catch (err) { console.log("Share failed:", err); }
-            } else if (window.AndroidBridge) {
-                // APK Tunnel
-                window.AndroidBridge.shareCSV(csv);
+            if (window.AndroidBridge && window.AndroidBridge.saveWorkoutJSON) {
+                window.AndroidBridge.saveWorkoutJSON(jsonString, fileName);
+                document.getElementById('autoSaveStatus').textContent = "Saved JSON via Bridge!";
             } else {
-                // Fallback Textbox
-                const container = document.getElementById('exportAreaContainer');
-                document.getElementById('csvOutputText').value = csv;
-                container.classList.remove('hidden');
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                let csv = "Date,Split,Exercise,Set,Reps,Bar,Plates,Total,Vol,Notes\n";
+                data.forEach(ex => { ex.setsData.forEach((s, i) => {
+                    const total = (parseFloat(ex.barWeight)||0) + (parseFloat(s.platesWeight)||0);
+                    csv += `"${date}","${split}","${ex.name}","${i+1}","${s.reps}","${ex.barWeight}","${s.platesWeight}","${total}","${(parseFloat(s.reps)||0)*total}","${ex.notes.replace(/"/g, '""')}"\n`;
+                });});
+
+                try { await navigator.clipboard.writeText(csv); document.getElementById('autoSaveStatus').textContent = "Saved & Copied CSV!"; } catch(e) {}
+
+                if (navigator.share) {
+                    try { await navigator.share({ title: `Workout Log - ${date}`, text: csv }); } catch (err) { console.log("Share failed:", err); }
+                } else if (window.AndroidBridge) {
+                    window.AndroidBridge.shareCSV(csv);
+                } else {
+                    const container = document.getElementById('exportAreaContainer');
+                    document.getElementById('csvOutputText').value = csv;
+                    container.classList.remove('hidden');
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }
             }
         };
 
@@ -436,25 +357,38 @@
             const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = (event) => {
+                const content = event.target.result;
                 try {
-                    const lines = event.target.result.split(/\r?\n/).filter(l => l.trim().length > 0);
-                    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
-                    const idx = { date: headers.indexOf('Date'), split: headers.indexOf('Split'), ex: headers.indexOf('Exercise'), reps: headers.indexOf('Reps'), bar: headers.indexOf('Bar'), plates: headers.indexOf('Plates'), notes: headers.indexOf('Notes') };
-                    const imported = {};
-                    for (let i = 1; i < lines.length; i++) {
-                        const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(s => s.replace(/^"|"$/g, '').trim());
-                        if (row.length < 5) continue;
-                        const exName = row[idx.ex];
-                        if (!imported[exName]) {
-                            imported[exName] = { name: exName, barWeight: row[idx.bar] || 0, notes: row[idx.notes] || "", setsData: [] };
-                            document.getElementById('workoutDateInput').value = row[idx.date];
-                            document.getElementById('workoutTypeSelect').value = row[idx.split];
+                    if (file.name.endsWith('.json')) {
+                        const imported = JSON.parse(content);
+                        document.getElementById('workoutDateInput').value = imported.date;
+                        document.getElementById('workoutTypeSelect').value = imported.split;
+                        const container = document.getElementById('exercisesContainer');
+                        container.innerHTML = '';
+                        imported.exercises.forEach(ex => container.appendChild(createExerciseSection(ex)));
+                        document.getElementById('sortExercisesBtn').click();
+                        calculateTotalVolume();
+                    } else {
+                        const lines = content.split(/\r?\n/).filter(l => l.trim().length > 0);
+                        const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+                        const idx = { date: headers.indexOf('Date'), split: headers.indexOf('Split'), ex: headers.indexOf('Exercise'), reps: headers.indexOf('Reps'), bar: headers.indexOf('Bar'), plates: headers.indexOf('Plates'), notes: headers.indexOf('Notes') };
+                        const imported = {};
+                        for (let i = 1; i < lines.length; i++) {
+                            const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(s => s.replace(/^"|"$/g, '').trim());
+                            if (row.length < 5) continue;
+                            const exName = row[idx.ex];
+                            if (!imported[exName]) {
+                                imported[exName] = { name: exName, barWeight: row[idx.bar] || 0, notes: row[idx.notes] || "", setsData: [] };
+                                document.getElementById('workoutDateInput').value = row[idx.date];
+                                document.getElementById('workoutTypeSelect').value = row[idx.split];
+                            }
+                            imported[exName].setsData.push({ reps: row[idx.reps], platesWeight: row[idx.plates] });
                         }
-                        imported[exName].setsData.push({ reps: row[idx.reps], platesWeight: row[idx.plates] });
+                        const container = document.getElementById('exercisesContainer'); container.innerHTML = '';
+                        Object.values(imported).forEach(ex => container.appendChild(createExerciseSection(ex)));
+                        document.getElementById('sortExercisesBtn').click(); calculateTotalVolume();
                     }
-                    const container = document.getElementById('exercisesContainer'); container.innerHTML = '';
-                    Object.values(imported).forEach(ex => container.appendChild(createExerciseSection(ex)));
-                    document.getElementById('sortExercisesBtn').click(); calculateTotalVolume(); e.target.value = '';
+                    e.target.value = '';
                 } catch (err) { alert("Import Error: " + err); }
             };
             reader.readAsText(file);
@@ -469,15 +403,15 @@
         };
 
         let timerInterval;
-        function startTimer(s) { 
-            clearInterval(timerInterval); let t = s; 
-            const disp = document.getElementById('timerDisplay'); 
-            const upd = () => { 
-                const m = Math.floor(t/60); const sec = t%60; 
-                disp.textContent = `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`; 
-            }; 
-            upd(); 
-            timerInterval = setInterval(() => { t--; upd(); if(t<=0){ clearInterval(timerInterval); disp.textContent="DONE!"; }}, 1000); 
+        function startTimer(s) {
+            clearInterval(timerInterval); let t = s;
+            const disp = document.getElementById('timerDisplay');
+            const upd = () => {
+                const m = Math.floor(t/60); const sec = t%60;
+                disp.textContent = `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+            };
+            upd();
+            timerInterval = setInterval(() => { t--; upd(); if(t<=0){ clearInterval(timerInterval); disp.textContent="DONE!"; }}, 1000);
         }
         function stopTimer() { clearInterval(timerInterval); document.getElementById('timerDisplay').textContent = "00:00"; }
 
@@ -493,31 +427,44 @@
         window.deleteHistoryItem = (i) => { if(confirm("Delete?")){ sessionHistory.splice(i,1); localStorage.setItem('workoutVolumeHistory', JSON.stringify(sessionHistory)); updateHistoryTable(); }};
 
         window.onfocus = () => { document.getElementById('workoutDateInput').value = getTodayLocal(); };
-        document.getElementById('toggleFavBtn').onclick = () => { 
-            const p = document.getElementById('favoritesPanel'); p.classList.toggle('collapsed'); 
-            document.getElementById('favChevron').textContent = p.classList.contains('collapsed') ? '▼' : '▲'; 
+        document.getElementById('toggleFavBtn').onclick = () => {
+            const p = document.getElementById('favoritesPanel'); p.classList.toggle('collapsed');
+            document.getElementById('favChevron').textContent = p.classList.contains('collapsed') ? '▼' : '▲';
         };
 
-        ALL_EXERCISES.sort(numSort).forEach(ex => {
-            const d = document.createElement('div');
-            d.innerHTML = `<label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px; border-radius:4px;"><input type="checkbox" ${favorites.includes(ex)?'checked':''}> ${ex}</label>`;
-            d.querySelector('input').onchange = (e) => {
-                if(e.target.checked) favorites.push(ex); else favorites = favorites.filter(f => f !== ex);
-                localStorage.setItem('workoutFavorites', JSON.stringify(favorites));
-            };
-            document.getElementById('favoritesGrid').appendChild(d);
-        });
+        function renderFavoritesGrid() {
+            const grid = document.getElementById('favoritesGrid');
+            grid.innerHTML = '';
+            ALL_EXERCISES.sort(numSort).forEach(ex => {
+                const d = document.createElement('div');
+                d.innerHTML = `<label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px; border-radius:4px;"><input type="checkbox" ${favorites.includes(ex)?'checked':''}> ${ex}</label>`;
+                d.querySelector('input').onchange = (e) => {
+                    if(e.target.checked) {
+                        if (!favorites.includes(ex)) favorites.push(ex);
+                    } else {
+                        favorites = favorites.filter(f => f !== ex);
+                    }
+                    localStorage.setItem('workoutFavorites', JSON.stringify(favorites));
+                };
+                grid.appendChild(d);
+            });
+        }
 
-        window.onload = () => {
+        window.onload = async () => {
             document.getElementById('workoutDateInput').value = getTodayLocal();
+            await loadExerciseData();
+
             const recovery = localStorage.getItem('active_recovery_backup');
             if (recovery && confirm("Restore session?")) {
                 const data = JSON.parse(recovery);
                 document.getElementById('exercisesContainer').innerHTML = '';
                 data.forEach(d => document.getElementById('exercisesContainer').appendChild(createExerciseSection(d)));
                 document.getElementById('sortExercisesBtn').click();
-            } else { document.getElementById('exercisesContainer').appendChild(createExerciseSection()); }
-            updateHistoryTable(); calculateTotalVolume();
+            } else {
+                document.getElementById('exercisesContainer').appendChild(createExerciseSection());
+            }
+            updateHistoryTable();
+            calculateTotalVolume();
         };
 
         setInterval(() => {
