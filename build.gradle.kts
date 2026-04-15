@@ -3,19 +3,19 @@ plugins {
 }
 
 android {
-    namespace = "com.gregg.macrotracker"
+    namespace = "com.gregg.workouttracker"
     compileSdk {
-        version = release(36) {
+        version = release(37) {
             minorApiLevel = 1
         }
     }
 
     defaultConfig {
-        applicationId = "com.gregg.macrotracker"
+        applicationId = "com.gregg.workouttracker"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 39
-        versionName = "3.95"
+        targetSdk = 37
+        versionCode = 86
+        versionName = "8.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
