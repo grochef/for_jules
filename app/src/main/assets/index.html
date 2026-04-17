@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Stack Pro v2.2</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a; --bg-card: #1e293b; --text-primary: #f8fafc;
+            --indigo: #818cf8; --accent: #22d3ee; --green: #10b981; --red: #f43f5e;
+            --chip-bg: #334155;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-primary); color: var(--text-primary); margin: 0;
+            padding: env(safe-area-inset-top) 1rem 2rem 1rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .app-container { max-width: 480px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+        h1 { font-size: 1.1rem; letter-spacing: 1px; color: var(--indigo); margin: 0; font-weight: 800; }
+
+        /* Filters */
+        .filter-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+        .chip {
+            background: var(--chip-bg); padding: 8px 16px; border-radius: 20px;
+            font-size: 0.75rem; white-space: nowrap; border: 1px solid transparent; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chip.active { border-color: var(--accent); background: rgba(34, 211, 238, 0.1); color: var(--accent); }
+
+        /* Grid */
+        .supplement-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            max-height: 45vh; overflow-y: auto; padding: 5px; margin-bottom: 20px;
+        }
+        .supp-card {
+            background: var(--bg-card); padding: 12px; border-radius: 12px;
+            border: 1px solid #334155; display: flex; align-items: center; gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        /* Stack Box */
+        .stack-box { background: #fefce8; color: #1e293b; border-radius: 16px; padding: 1.25rem; min-height: 100px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .stack-item { border-bottom: 1px solid rgba(0,0,0,0.08); padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Modals */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .modal.show { display: flex; }
+        .modal-content { background: var(--bg-card); width: 100%; border-radius: 20px; padding: 24px; border: 1px solid var(--indigo); max-height: 80vh; overflow-y: auto; }
+
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; margin-top: 10px; cursor: pointer; font-size: 1rem; transition: opacity 0.2s; }
+        .btn:active { opacity: 0.7; }
+        .btn-primary { background: var(--indigo); color: white; }
+        .btn-close { background: #334155; color: white; margin-top: 20px; }
+
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>STACK PRO v2.2</h1>
+            <div id="status-dot" style="font-size: 0.8rem; color: #475569;">●</div>
+        </header>
+
+        <div class="filter-scroll" id="category-filters">
+            <div class="chip active" onclick="filterData('All', this)">All</div>
+            <div class="chip" onclick="filterData('Muscle', this)">Muscle</div>
+            <div class="chip" onclick="filterData('Testosterone', this)">Testosterone</div>
+            <div class="chip" onclick="filterData('Energy', this)">Energy</div>
+            <div class="chip" onclick="filterData('Sleep', this)">Sleep</div>
+            <div class="chip" onclick="filterData('Immune', this)">Immune</div>
+            <div class="chip" onclick="filterData('Heart', this)">Heart</div>
+        </div>
+
+        <div id="grid" class="supplement-grid">
+            <p style="text-align:center; width:100%; grid-column: 1/3; opacity: 0.5;">Loading Supplements...</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="addToStack()">Add Selected to Stack</button>
+
+        <div class="stack-box" style="margin-top:20px;">
+            <h3 style="margin:0 0 10px 0; font-size: 0.85rem; letter-spacing: 0.5px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px;">MY ACTIVE STACK</h3>
+            <div id="stack-list" style="font-size: 0.85rem;">Select items to build your stack.</div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="m-title" style="color:var(--accent); margin-top:0; border-bottom: 1px solid #334155; padding-bottom: 10px;"></h2>
+            <div id="m-body" style="line-height: 1.6; font-size: 0.95rem;"></div>
+            <button class="btn btn-close" onclick="closeModal()">Close Details</button>
+        </div>
+    </div>
+
+    <script>
+        let fullData = [];
+        let selectedItems = new Set();
+        let currentStack = JSON.parse(localStorage.getItem('my_stack_v2.2')) || [];
+
+        async function loadData() {
+            const grid = document.getElementById('grid');
+            try {
+                const res = await fetch('supplement.json');
+                if (!res.ok) throw new Error("Could not load supplement.json. Ensure file exists in assets.");
+
+                fullData = await res.json();
+                renderGrid(fullData);
+                renderStack();
+                document.getElementById('status-dot').style.color = 'var(--green)';
+            } catch (e) {
+                console.error(e);
+                grid.innerHTML = `<p style="color:var(--red); grid-column: 1/3; text-align:center; font-size:0.8rem;">JSON Error: ${e.message}</p>`;
+                document.getElementById('status-dot').style.color = 'var(--red)';
+            }
+        }
+
+        function renderGrid(data) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            data.sort((a,b) => a.name.localeCompare(b.name)).forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'supp-card';
+                // Escape apostrophes in names for JS safety
+                const safeName = item.name.replace(/'/g, "\\'");
+                card.innerHTML = `
+                    <input type="checkbox" onchange="toggleSelect('${safeName}')" ${selectedItems.has(item.name) ? 'checked' : ''}>
+                    <span style="flex-grow:1; cursor:pointer;" onclick="showDetails('${safeName}')">${item.name}</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterData(cat, el) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            if(el) el.classList.add('active');
+
+            const filtered = cat === 'All' ? fullData : fullData.filter(i => i.parameters.Category === cat);
+            renderGrid(filtered);
+        }
+
+        function toggleSelect(name) {
+            if(selectedItems.has(name)) selectedItems.delete(name);
+            else selectedItems.add(name);
+        }
+
+        function showDetails(name) {
+            const item = fullData.find(i => i.name === name);
+            if(!item) return;
+
+            document.getElementById('m-title').innerText = item.name;
+            let html = '';
+            // Dynamically show all keys from your JSON (Dosage, Time, Food, etc.)
+            for(let [k,v] of Object.entries(item.parameters)) {
+                html += `<p style="margin-bottom:12px;"><strong>${k}:</strong> ${v}</p>`;
+            }
+            document.getElementById('m-body').innerHTML = html;
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function addToStack() {
+            selectedItems.forEach(name => {
+                if(!currentStack.some(i => i.name === name)) {
+                    const item = fullData.find(i => i.name === name);
+                    if(item) currentStack.push(item);
+                }
+            });
+            localStorage.setItem('my_stack_v2.2', JSON.stringify(currentStack));
+            renderStack();
+            selectedItems.clear();
+            document.querySelectorAll('input[type="checkbox"]').forEach(i => i.checked = false);
+        }
+
+        function renderStack() {
+            const list = document.getElementById('stack-list');
+            list.innerHTML = currentStack.length ? '' : 'Select items to build your stack.';
+
+            currentStack.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'stack-item';
+                div.innerHTML = `
+                    <span><strong>${item.name}</strong> <small style="opacity:0.7">(${item.parameters.Schedule})</small></span>
+                    <span onclick="removeStack(${idx})" style="color:var(--red); font-weight:bold; padding: 5px 10px; cursor:pointer;">✕</span>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function removeStack(idx) {
+            currentStack.splice(idx, 1);
+            localStorage.setItem('my_stack_v2.2', JSON.stringify(currentStack));
+            renderStack();
+        }
+
+        function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
